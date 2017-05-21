@@ -10,24 +10,18 @@ class MainDialog;
 class MainDialog : public QDialog
 {
     Q_OBJECT
-
 public:
     explicit MainDialog(QWidget *parent = 0);
     ~MainDialog();
-
 private slots:
     void on_MButton_clicked();
-
     void on_FButton_clicked();
-
     void on_DButton_clicked();
-
     void on_EButton_clicked();
-
     void on_WButton_clicked();
-
     void on_connectButton_clicked();
     void on_CancelConnection();
+    void on_showPipeline(Y86 *);
 signals:
     void buildConnect(bool,bool,bool,bool,bool);
     void cancelConnect();

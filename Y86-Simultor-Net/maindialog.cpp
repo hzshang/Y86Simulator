@@ -72,3 +72,8 @@ void MainDialog::on_CancelConnection()
 {
     ui->connectButton->setText("建立连接");
 }
+
+void MainDialog::on_showPipeline(Y86 *y86)
+{
+    this->close();
+}

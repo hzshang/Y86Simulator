@@ -23,6 +23,7 @@ protected:
 signals:
     void on_dealData(QJsonObject,QHostAddress);
     void cancelConnectionSginal();
+    void showPipeLine(Y86 *);
 private slots:
     void ready(bool FLevel,bool DLevel,bool ELevel,bool MLevel,bool WLevel);
     void cancel();

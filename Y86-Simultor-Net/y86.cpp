@@ -91,6 +91,7 @@ void Y86::beginPipeLine()
 {
     qWarning()<<"Begin";
     stop=true;
+    emit showPipeLine(this);
 }
 
 void Y86::beignConnect(QJsonObject json,QHostAddress address)
@@ -200,7 +201,6 @@ void Y86:: f2w()
 }
 void Y86:: f2m()
 {
-
     if(master)
         countConnection(2);
     else
