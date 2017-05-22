@@ -16,4 +16,5 @@ MainWindow::~MainWindow()
 void MainWindow::beginpipelineSlot(Y86 *y86)
 {
     this->show();
+
 }

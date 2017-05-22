@@ -5,14 +5,8 @@ Y86::Y86(QObject *parent)
     qRegisterMetaType<QHostAddress>("QHostAddress");
     listen=new QUdpSocket();
     broadcast=new QUdpSocket();
-    if(!listen->bind(Y86PORT,QUdpSocket::ReuseAddressHint))
-    {
-        QMessageBox::warning(NULL,"Warning",QString("%1端口被占用").arg(Y86PORT),QMessageBox::Ok);
-    }
-    connect(listen,SIGNAL(readyRead()),this,SLOT(readFromlisten()));
-    connect(this,SIGNAL(on_dealData(QJsonObject,QHostAddress)),this,SLOT(dealData(QJsonObject,QHostAddress)),Qt::QueuedConnection);
-
 }
+//发射广播寻找局域网客户端，建立连接
 void Y86::ready(bool FLevel, bool DLevel, bool ELevel, bool MLevel, bool WLevel)
 {
     init();
@@ -31,18 +25,11 @@ void Y86::ready(bool FLevel, bool DLevel, bool ELevel, bool MLevel, bool WLevel)
         writeback=new Writeback();
     start();
 }
-//按下取消按钮时调用
-void Y86::cancel()
-{
-    QJsonObject json;
-    json.insert("id",0);
-    broadData(json);
-    emit cancelConnectionSginal();
-}
 
+//Y86广播收到信号
 void Y86::readFromlisten()
 {
-    while(listen->hasPendingDatagrams())
+    while(listen->state()==QUdpSocket::BoundState&&listen->hasPendingDatagrams())
     {
         QByteArray datagram;
         QHostAddress address;
@@ -56,6 +43,7 @@ void Y86::readFromlisten()
 void Y86::broadData(QJsonObject &data)
 {
     QByteArray bytes=QJsonDocument(data).toBinaryData();
+    qWarning()<<"send"<<data;
     broadcast->writeDatagram(bytes,bytes.size(),QHostAddress::Broadcast,Y86PORT);
 }
 //处理收到的信息
@@ -63,30 +51,19 @@ void Y86::dealData(QJsonObject json,QHostAddress address)
 {
     switch(json["id"].toInt())
     {
-    case 0:
-        cancelConnect();
+    case 0://暂时不能实现
         break;
     case 1:
         beignConnect(json,address);
-        break;
-    case 2:
         if(master)
-            countConnection(json["cid"].toInt());
+            countConnection(json["pool"].toInt());
         break;
     case 3:
         beginPipeLine();
         break;
     }
 }
-//取消连接
-void Y86::cancelConnect()
-{
-    delete fetch;
-    delete decode;
-    delete execute;
-    delete memory;
-    delete writeback;
-}
+
 void Y86::beginPipeLine()
 {
     qWarning()<<"Begin";
@@ -157,132 +134,67 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
         }
     }
 }
-//检查每个连接是否完成
-//完成后广播开始
-void Y86::countConnection(int cid)
+
+//master检查每个连接是否完成，完成后开始
+void Y86::countConnection(int recvPool)
 {
-    pool[cid]=true;
-    qWarning()<<"Connected:"<<cid;
-    int i;
-    for(i=0;i<8&&pool[i];)
-        i++;
-    if(i==8)
+    pool=pool|recvPool;
+    if(pool==0x000000ff)
     {
         QJsonObject json;
         json.insert("id",3);
         broadData(json);
     }
 }
-//如果是主机，直接加
+//如果是主机，直接连接
 //是client，发送广播连接成功
-void Y86:: f2d()
+void Y86:: f2d()//3
 {
-    if(master)
-        countConnection(3);
-    else
-    {
-        QJsonObject json;
-        json.insert("id",2);
-        json.insert("cid",3);
-        broadData(json);
-    }
+    pool=pool|0x08;
 }
-void Y86:: f2w()
+void Y86:: f2w()//2
 {
-    if(master)
-        countConnection(1);
-    else
-    {
-        QJsonObject json;
-        json.insert("id",2);
-        json.insert("cid",1);
-        broadData(json);
-    }
+    pool=pool|0x04;
 }
-void Y86:: f2m()
+void Y86:: f2m()//1
 {
-    if(master)
-        countConnection(2);
-    else
-    {
-        QJsonObject json;
-        json.insert("id",2);
-        json.insert("cid",2);
-        broadData(json);
-    }
+    pool=pool|0x02;
 }
-void Y86:: d2e()
+void Y86:: d2e()//4
 {
-    if(master)
-        countConnection(4);
-    else
-    {
-        QJsonObject json;
-        json.insert("id",2);
-        json.insert("cid",4);
-        broadData(json);
-    }
+    pool=pool|0x10;
 }
-void Y86:: d2m()
+void Y86:: d2m()//5
 {
-    if(master)
-        countConnection(5);
-    else
-    {
-        QJsonObject json;
-        json.insert("id",2);
-        json.insert("cid",5);
-        broadData(json);
-    }
+    pool=pool|0x20;
 }
-void Y86:: d2w()
+void Y86:: d2w()//6
 {
-    if(master)
-        countConnection(6);
-    else
-    {
-        QJsonObject json;
-        json.insert("id",2);
-        json.insert("cid",6);
-        broadData(json);
-    }
+    pool=pool|0x40;
 }
-void Y86:: e2m()
+void Y86:: e2m()//7
 {
-
-    if(master)
-        countConnection(7);
-    else
-    {
-        QJsonObject json;
-        json.insert("id",2);
-        json.insert("cid",7);
-        broadData(json);
-    }
+    pool=pool|0x80;
 }
-void Y86:: m2w()
+void Y86:: m2w()//0
 {
-
-    if(master)
-        countConnection(0);
-    else
-    {
-        QJsonObject json;
-        json.insert("id",2);
-        json.insert("cid",0);
-        broadData(json);
-    }
+    pool=pool|0x01;
 }
 void Y86::init()
 {
-    for(int i=0;i<8;i++)
-        pool[i]=false;
+    pool=0;
     stop=false;
     fetch=NULL;
     decode=NULL;
     execute=NULL;
     memory=NULL;
     writeback=NULL;
+    if(!listen->bind(Y86PORT,QUdpSocket::ReuseAddressHint))
+    {
+        QMessageBox::warning(NULL,"Warning",QString("%1端口被占用").arg(Y86PORT),QMessageBox::Ok);
+    }
+    connect(listen,SIGNAL(readyRead()),this,SLOT(readFromlisten()));
+    connect(this,SIGNAL(on_dealData(QJsonObject,QHostAddress)),this,SLOT(dealData(QJsonObject,QHostAddress)));
 }
 
 void Y86::run()
@@ -296,8 +208,12 @@ void Y86::run()
     json.insert("WLevel",writeback!=NULL);
     while(!stop)
     {
-        broadData(json);
-        sleep(1);
+        QJsonObject temp=json;
+        temp.insert("pool",pool);
+        broadData(temp);
+        sleep(2);
     }
+    qWarning()<<"NO BROAD!";
+    disconnect(listen,SIGNAL(readyRead()),this,SLOT(readFromlisten()));
     quit();
 }
