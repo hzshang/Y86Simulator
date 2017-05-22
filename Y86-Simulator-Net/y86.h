@@ -45,8 +45,8 @@ private:
     Writeback *writeback;
     QUdpSocket *listen;
     QUdpSocket *broadcast;
-    volatile bool stop;
-    bool pool[8];
+    volatile bool stop;//meaning?
+    bool pool[8];//meaning?
     bool master;
     void cancelConnect();
     void init();

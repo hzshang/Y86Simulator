@@ -164,7 +164,7 @@ void Y86::countConnection(int cid)
     pool[cid]=true;
     qWarning()<<"Connected:"<<cid;
     int i;
-    for(i=0;i<8&&pool[i];)
+    for(i=0;i<8 && pool[i];)
         i++;
     if(i==8)
     {
