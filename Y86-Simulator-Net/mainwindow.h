@@ -21,8 +21,9 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QString fileName;
+    QString instrCode;
     void openFile();
-    void readfile();
+    void readFile();
 };
 
 #endif // MAINWINDOW_H

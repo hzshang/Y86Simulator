@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QFile>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -29,15 +30,15 @@ void MainWindow::openFile()
     }
 }
 
-void MainWindow::readfile()
+void MainWindow::readFile()
 {
-    QFile loadFile = new QFile(fileName);
+    QFile* loadFile = new QFile(fileName);
     if(!loadFile->open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qWarning()<<"open file error!";
         return;
     }
-    QTextStream in(&loadFile);
+    QTextStream in(loadFile);
     instrCode =  in.readAll();
     ui->instrustion->setText(instrCode);
 }
