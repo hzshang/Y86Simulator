@@ -15,8 +15,6 @@
 ## Decode  
 存放8个寄存器
 读取寄存器，处理冒险，将其写到E层  
-- server 端口49938
-- client 连接Execute_server
 - 连接Memory
 - 连接writeback
 
