@@ -20,11 +20,10 @@ private slots:
     void on_EButton_clicked();
     void on_WButton_clicked();
     void on_connectButton_clicked();
-    void on_CancelConnection();
     void on_showPipeline(Y86 *);
 signals:
     void buildConnect(bool,bool,bool,bool,bool);
-    void cancelConnect();
+
 private:
     Ui::MainDialog *ui;
     bool fetch;
@@ -34,6 +33,7 @@ private:
     bool writeback;
     QString checkColor;
     QString uncheckColor;
+    void init();
 };
 
 #endif // MAINDIALOG_H

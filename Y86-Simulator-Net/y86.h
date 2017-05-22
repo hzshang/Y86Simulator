@@ -11,6 +11,7 @@
 #include <QString>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonArray>
 #include <QThread>
 class Y86: public QThread
 {
@@ -26,7 +27,6 @@ signals:
     void showPipeLine(Y86 *);
 private slots:
     void ready(bool FLevel,bool DLevel,bool ELevel,bool MLevel,bool WLevel);
-    void cancel();
     void readFromlisten();
     void dealData(QJsonObject,QHostAddress);
     void f2d();
@@ -45,14 +45,13 @@ private:
     Writeback *writeback;
     QUdpSocket *listen;
     QUdpSocket *broadcast;
-    volatile bool stop;//meaning?
-    bool pool[8];//meaning?
+    volatile bool stop;
+    volatile int pool;
     bool master;
-    void cancelConnect();
     void init();
     void beginPipeLine();
     void beignConnect(QJsonObject,QHostAddress);
-    void countConnection(int);
+    void countConnection(int recvPool);
 };
 
 #endif // Y86_H

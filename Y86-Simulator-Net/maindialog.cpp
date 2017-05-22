@@ -6,18 +6,23 @@ MainDialog::MainDialog(QWidget *parent) :
     ui(new Ui::MainDialog)
 {
     ui->setupUi(this);
+    uncheckColor="background-color:#e7e7e7";
+    checkColor="background-color:lightYellow;";
+    init();
+
+}
+void MainDialog::init()
+{
     fetch=false;
     decode=false;
     execute=false;
     memory=false;
     writeback=false;
-    uncheckColor="background-color:#e7e7e7";
-    checkColor="background-color:lightYellow;";
-    ui->FButton->setStyleSheet(fetch?checkColor:uncheckColor);
-    ui->DButton->setStyleSheet(decode?checkColor:uncheckColor);
-    ui->EButton->setStyleSheet(execute?checkColor:uncheckColor);
-    ui->MButton->setStyleSheet(memory?checkColor:uncheckColor);
-    ui->WButton->setStyleSheet(writeback?checkColor:uncheckColor);
+    ui->FButton->setStyleSheet(uncheckColor);
+    ui->DButton->setStyleSheet(uncheckColor);
+    ui->EButton->setStyleSheet(uncheckColor);
+    ui->MButton->setStyleSheet(uncheckColor);
+    ui->WButton->setStyleSheet(uncheckColor);
 }
 
 MainDialog::~MainDialog()
@@ -57,20 +62,19 @@ void MainDialog::on_WButton_clicked()
 
 void MainDialog::on_connectButton_clicked()
 {
-    if(ui->connectButton->text()=="建立连接")
+    if(fetch||memory||decode||execute||writeback)
     {
-        ui->connectButton->setText("取消连接");
+        ui->connectButton->setText("正在连接...");
+        ui->connectButton->setEnabled(false);
+        ui->FButton->setEnabled(false);
+        ui->DButton->setEnabled(false);
+        ui->EButton->setEnabled(false);
+        ui->MButton->setEnabled(false);
+        ui->WButton->setEnabled(false);
         emit buildConnect(fetch,decode,execute,memory,writeback);
-    }else
-    {
-        ui->connectButton->setText("建立连接");
-        emit cancelConnect();
+    }else{
+        QMessageBox::warning(NULL,"Warning",QString("请选择至少一个阶段！"),QMessageBox::Ok);
     }
-}
-
-void MainDialog::on_CancelConnection()
-{
-    ui->connectButton->setText("建立连接");
 }
 
 void MainDialog::on_showPipeline(Y86 *y86)
