@@ -1,5 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "y86Control/decode.h"
+#include "y86Control/execute.h"
+#include "y86Control/fetch.h"
+#include "y86Control/memory.h"
+#include "y86Control/writeback.h"
 #include <QFile>
 #include <QFileDialog>
 
@@ -8,6 +13,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    Fetch* f;
+    Decode* d;
+    Execute* e;
+    Memory* m;
+    Writeback* w;
+    QObject::connect(this,SIGNAL(sendInstr(QString)),f,SLOT(receiveInstr(QString)));
+    
 }
 
 MainWindow::~MainWindow()
@@ -41,6 +53,7 @@ void MainWindow::readFile()
     QTextStream in(loadFile);
     instrCode =  in.readAll();
     ui->instrustion->setText(instrCode);
+    emit sendInstr(instrCode);
 }
 
 void MainWindow::on_openFile_clicked()

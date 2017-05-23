@@ -14,6 +14,10 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+signals:
+    void sendInstr(QString);
+
 private slots:
     void beginpipelineSlot(Y86 *);
     void on_openFile_clicked();
