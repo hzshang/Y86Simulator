@@ -16,8 +16,13 @@ public:
     ~MainWindow();
 private slots:
     void beginpipelineSlot(Y86 *);
+    void on_openFile_clicked();
+
 private:
     Ui::MainWindow *ui;
+    QString fileName;
+    void openFile();
+    void readfile();
 };
 
 #endif // MAINWINDOW_H

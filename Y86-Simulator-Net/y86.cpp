@@ -140,6 +140,9 @@ void Y86::countConnection(int recvPool)
 {
     pool=pool|recvPool;
     if(pool==0x000000ff)
+    pool=pool|recvPool;
+    if(pool==0x000000ff)
+
     {
         QJsonObject json;
         json.insert("id",3);
