@@ -1,10 +1,7 @@
 #ifndef FETCH_H
 #define FETCH_H
-#include <QUdpSocket>
-#include <QTcpSocket>
-#include <QTcpServer>
-#include <QObject>
-class Fetch:QObject
+#include "const.h"
+class Fetch:public QObject
 {
     Q_OBJECT
 public:
@@ -14,6 +11,7 @@ public:
     QTcpSocket *clientToDecode;
     QTcpSocket *clientToMemory;
     QTcpSocket *clientToWriteback;
+    QTcpSocket *clientToClock;
 private slots:
     void receiveInstr(QString);
     void dealDecodeData();
@@ -36,6 +34,12 @@ private:
     int hexTodec(QString str);
     void switchStrToInt();
     int getValue(int l,int r);
+    int stat;
+    int predPC;
+    void init();
+    void sendToDecode(QJsonObject);
+    void sendToMemory(QJsonObject json);
+    void sendToWriteback(QJsonObject json);
 };
 
 #endif // FETCH_H

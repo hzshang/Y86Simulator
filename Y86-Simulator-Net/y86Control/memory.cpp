@@ -71,4 +71,17 @@ void Memory::init()
     serverForFetch=new QTcpServer();
     serverForFetch->listen(QHostAddress::Any,MEMORY_FOR_FETCH_PORT);
     connect(serverForFetch,SIGNAL(newConnection()),this,SLOT(dealFetchConnection()));
+
+    clientToClock=NULL;
+}
+
+void Memory::sendToWriteback(QJsonObject json)
+{
+    if(clientToWriteback->state()==QAbstractSocket::UnconnectedState)
+    {
+        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
+        return;
+    }
+    QByteArray bytes=QJsonDocument(json).toBinaryData();
+    clientToWriteback->write(bytes);
 }

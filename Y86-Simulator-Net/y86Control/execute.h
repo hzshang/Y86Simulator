@@ -1,10 +1,7 @@
 #ifndef EXECUTE_H
 #define EXECUTE_H
-#include <QUdpSocket>
-#include <QTcpSocket>
-#include <QTcpServer>
-#include <QObject>
-class Execute:QObject
+#include "const.h"
+class Execute:public QObject
 {
     Q_OBJECT
 public:
@@ -14,13 +11,14 @@ public:
     QTcpServer *serverForDecode;
     QTcpSocket *socketForDecode;
     QTcpSocket *clientToMemory;
+    QTcpSocket *clientToClock;
 private slots:
     void dealDecodeConnection();
     void dealDecodeData();
     void dealMemoryData();
 private:
     void init();
-
+    void sendToMemory(QJsonObject json);
 };
 
 #endif // EXECUTE_H

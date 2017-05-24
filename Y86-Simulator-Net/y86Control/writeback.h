@@ -1,10 +1,7 @@
 #ifndef WRITEBACK_H
 #define WRITEBACK_H
-#include <QUdpSocket>
-#include <QTcpSocket>
-#include <QTcpServer>
-#include <QObject>
-class Writeback:QObject
+#include "const.h"
+class Writeback:public QObject
 {
     Q_OBJECT
 public:
@@ -12,10 +9,14 @@ public:
     ~Writeback();
     QTcpServer *serverForFetch;
     QTcpSocket *socketForFetch;
+
     QTcpServer *serverForDecode;
     QTcpSocket *socketForDecode;
+
     QTcpServer *serverForMemory;
     QTcpSocket *socketForMemory;
+    QTcpSocket *clientToClock;
+    void run();//在run里执行每个时钟周期的任务
 private slots:
     void dealFetchConnection();
     void dealDecodeConnection();
@@ -25,6 +26,8 @@ private slots:
     void dealMemoryData();
 private:
     void init();
+    void sendToDecode(QJsonObject json);
+    void sendToFetch(QJsonObject json);
 };
 
 #endif // WRITEBACK_H

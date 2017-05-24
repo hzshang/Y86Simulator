@@ -30,10 +30,6 @@ void Writeback::dealMemoryConnection()
     connect(socketForMemory,SIGNAL(readyRead()),this,SLOT(dealMemoryData()));
     serverForMemory->pauseAccepting();
 }
-void Writeback::dealMemoryData()
-{
-
-}
 
 void Writeback::init()
 {
@@ -52,13 +48,39 @@ void Writeback::init()
      serverForMemory=new QTcpServer();
      serverForMemory->listen(QHostAddress::Any,WRITEBACK_FOR_MEMORY_PORT);
      connect(serverForMemory,SIGNAL(newConnection()),this,SLOT(dealMemoryConnection()));
+     clientToClock=NULL;
+}
 
+void Writeback::sendToDecode(QJsonObject json)
+{
+    if(socketForDecode->state()==QAbstractSocket::UnconnectedState)
+    {
+        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
+        return;
+    }
+    QByteArray bytes=QJsonDocument(json).toBinaryData();
+    socketForDecode->write(bytes);
+}
+
+void Writeback::sendToFetch(QJsonObject json)
+{
+    if(socketForFetch->state()==QAbstractSocket::UnconnectedState)
+    {
+        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
+        return;
+    }
+    QByteArray bytes=QJsonDocument(json).toBinaryData();
+    socketForFetch->write(bytes);
 }
 void Writeback::dealFetchData()
 {
 
 }
 void Writeback::dealDecodeData()
+{
+
+}
+void Writeback::dealMemoryData()
 {
 
 }

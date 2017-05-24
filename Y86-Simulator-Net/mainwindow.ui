@@ -46,6 +46,8 @@
      <font>
       <family>Times New Roman</family>
      </font>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QPushButton" name="openFile">
@@ -200,6 +202,9 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <family>宋体</family>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
        <property name="text">
@@ -239,11 +244,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="OF">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -256,8 +263,12 @@
      <rect>
       <x>580</x>
       <y>10</y>
+
       <width>81</width>
       <height>512</height>
+
+      <width>98</width>
+      <height>491</height>
      </rect>
     </property>
     <property name="font">
@@ -279,6 +290,7 @@
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+        <string>eax</string>
        </property>
       </widget>
      </item>
@@ -312,11 +324,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="ebx">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -340,11 +354,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="ecx">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -368,11 +384,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="edx">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -396,11 +414,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="esp">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -424,11 +444,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="ebp">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -452,11 +474,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="edi">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -480,11 +504,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="esi">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -715,11 +741,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="F_stat">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -742,11 +770,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="predPC">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -769,11 +799,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="PC">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -828,11 +860,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="D_stat">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -855,11 +889,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="D_icode">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -882,11 +918,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="D_ifun">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -909,11 +947,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="rA">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -936,11 +976,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="rB">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -963,11 +1005,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="D_valC">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -990,11 +1034,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="valP">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1030,14 +1076,30 @@
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="label_3">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
+
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
        </property>
        <property name="text">
         <string>stat</string>
@@ -1049,11 +1111,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="E_stat">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1076,11 +1140,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="E_icode">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1103,11 +1169,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="E_ifun">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1130,11 +1198,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="E_valC">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1157,11 +1227,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="E_valA">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1184,11 +1256,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="E_valB">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1211,11 +1285,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="E_desE">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1238,11 +1314,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="E_desM">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1265,11 +1343,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="srcA">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1292,11 +1372,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="srcB">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1321,10 +1403,15 @@
     <layout class="QVBoxLayout" name="verticalLayout_4">
      <item>
       <widget class="QLineEdit" name="lineEdit">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
+
+       <property name="styleSheet">
+        <string notr="true">background-color:rgb(200,200,200);
+color:rgb(100,100,255);</string>
        </property>
        <property name="text">
         <string>M</string>
@@ -1351,11 +1438,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="M_stat">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1378,11 +1467,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="M_icode">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1405,11 +1496,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="Cnd">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1432,11 +1525,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="M_valE">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1476,11 +1571,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="M_valA">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1503,11 +1600,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="M_desE">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1530,11 +1629,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="M_desM">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1589,11 +1690,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="W_stat">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1616,11 +1719,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="W_icode">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1660,11 +1765,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="W_valE">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1704,11 +1811,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="W_valM">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1731,11 +1840,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="W_desE">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1758,11 +1869,13 @@
      </item>
      <item>
       <widget class="QLineEdit" name="W_desM">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
        </property>
+
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -1806,46 +1919,66 @@
     <layout class="QVBoxLayout" name="verticalLayout_8">
      <item>
       <widget class="QLineEdit" name="W_func">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
+
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLineEdit" name="M_func">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
+
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLineEdit" name="E_func">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
+
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLineEdit" name="D_func">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
+
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLineEdit" name="F_func">
+
        <property name="font">
         <font>
          <family>Times New Roman</family>
         </font>
+
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -1856,7 +1989,7 @@
      <rect>
       <x>10</x>
       <y>460</y>
-      <width>21</width>
+      <width>41</width>
       <height>147</height>
      </rect>
     </property>
@@ -1876,6 +2009,9 @@
        <property name="text">
         <string>W</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
      </item>
      <item>
@@ -1887,6 +2023,9 @@
        </property>
        <property name="text">
         <string>M</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -1900,6 +2039,9 @@
        <property name="text">
         <string>E</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
      </item>
      <item>
@@ -1912,6 +2054,9 @@
        <property name="text">
         <string>D</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
      </item>
      <item>
@@ -1923,6 +2068,9 @@
        </property>
        <property name="text">
         <string>F</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -1963,7 +2111,7 @@
      <x>0</x>
      <y>0</y>
      <width>670</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>

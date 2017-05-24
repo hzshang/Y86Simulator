@@ -26,17 +26,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
         maindialog.cpp \
-    clock.cpp \
     y86Control/fetch.cpp \
     y86Control/decode.cpp \
     y86Control/execute.cpp \
     y86Control/memory.cpp \
     y86Control/writeback.cpp \
     y86.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    y86Control/clock.cpp
 
 HEADERS  += maindialog.h \
-    clock.h \
     y86Control/fetch.h \
     y86Control/decode.h \
     y86Control/execute.h \
@@ -44,7 +43,8 @@ HEADERS  += maindialog.h \
     y86Control/writeback.h \
     y86.h \
     const.h \
-    mainwindow.h
+    mainwindow.h \
+    y86Control/clock.h
 
 FORMS    += maindialog.ui \
     mainwindow.ui

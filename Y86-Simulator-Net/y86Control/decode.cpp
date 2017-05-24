@@ -11,9 +11,43 @@ void Decode::init()
     clientToExecute=NULL;
     clientToMemory=NULL;
     clientToWriteback=NULL;
+    clientToClock=NULL;
     serverForFetch=new QTcpServer();
     serverForFetch->listen(QHostAddress::Any,DECODE_FOR_FETCH_PORT);
     connect(serverForFetch,SIGNAL(newConnection()),this,SLOT(dealFetchConnection()));
+}
+
+void Decode::sendToExecute(QJsonObject json)
+{
+    if(clientToExecute->state()==QAbstractSocket::UnconnectedState)
+    {
+        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
+        return;
+    }
+    QByteArray bytes=QJsonDocument(json).toBinaryData();
+    clientToExecute->write(bytes);
+}
+
+void Decode::sendToMemory(QJsonObject json)
+{
+    if(clientToMemory->state()==QAbstractSocket::UnconnectedState)
+    {
+        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
+        return;
+    }
+    QByteArray bytes=QJsonDocument(json).toBinaryData();
+    clientToMemory->write(bytes);
+}
+
+void Decode::sendToWriteback(QJsonObject json)
+{
+    if(clientToWriteback->state()==QAbstractSocket::UnconnectedState)
+    {
+        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
+        return;
+    }
+    QByteArray bytes=QJsonDocument(json).toBinaryData();
+    clientToWriteback->write(bytes);
 }
 
 Decode::~Decode()

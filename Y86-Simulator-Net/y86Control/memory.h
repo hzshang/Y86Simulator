@@ -1,10 +1,7 @@
 #ifndef MEMORY_H
 #define MEMORY_H
-#include <QUdpSocket>
-#include <QTcpSocket>
-#include <QTcpServer>
-#include <QObject>
-class Memory:QObject
+#include "const.h"
+class Memory:public QObject
 {
     Q_OBJECT
 public:
@@ -20,6 +17,7 @@ public:
     QTcpSocket *socketForDecode;
     QTcpSocket *socketForFetch;
     QTcpSocket *clientToWriteback;
+    QTcpSocket *clientToClock;
 private slots:
     void dealExecuteConnection();
     void dealDecodeConnection();
@@ -30,6 +28,9 @@ private slots:
     void dealWritebackData();
 private:
     void init();
+    void sendToWriteback(QJsonObject json);
+    void sendToFetch(QJsonObject json);
+    void sendToDecode(QJsonObject json);
 };
 
 #endif // MEMORY_H
