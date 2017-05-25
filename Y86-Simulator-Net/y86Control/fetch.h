@@ -16,12 +16,18 @@ public:
 private slots:
     void receiveInstr(QString);
     void dealDecodeData();
+    void dealExecuteData();
     void dealMemoryData();
     void dealWritebackData();
     void dealExecuteData();
+
+signals:
+    void sendFromFetch(QMap<QString,int>);
 private:
     int predPC = 0;
     int PC = 0;
+    bool isRet = false;
+    bool isRisk = false;
     int f_stat,f_icode,f_ifun,f_rA,f_rB,f_valC,f_valP;
 
     int M_icode=-1,M_valA=-1,M_Cnd=-1;

@@ -12,6 +12,8 @@
 #include <QString>
 #include <QJsonArray>
 #include <QThread>
+#include <QMap>
+
 #define Y86PORT 42313
 #define DECODE_FOR_FETCH_PORT 42317
 #define EXECUTE_FOR_DECODE_PORT 42319
