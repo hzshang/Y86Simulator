@@ -12,11 +12,13 @@ public:
     QTcpSocket *clientToMemory;
     QTcpSocket *clientToWriteback;
     QTcpSocket *clientToClock;
+    QTcpSocket *clientToExecute;
 private slots:
     void receiveInstr(QString);
     void dealDecodeData();
     void dealMemoryData();
     void dealWritebackData();
+    void dealExecuteData();
 private:
     int predPC = 0;
     int PC = 0;
@@ -27,19 +29,16 @@ private:
 
     QString instruction;
     QVector<int> instrCode;
-    void init();
     void  select_PC();
     void fetch();
     void  predict_PC();
     int hexTodec(QString str);
     void switchStrToInt();
     int getValue(int l,int r);
-    int stat;
-    int predPC;
     void init();
-    void sendToDecode(QJsonObject);
-    void sendToMemory(QJsonObject json);
-    void sendToWriteback(QJsonObject json);
+    void sendToDecode(QJsonObject json);
+//    void sendToMemory(QJsonObject json);
+//    void sendToWriteback(QJsonObject json);
 };
 
 #endif // FETCH_H

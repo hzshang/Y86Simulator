@@ -38,6 +38,7 @@ private slots:
     void d2w();
     void e2m();
     void m2w();
+    void f2e();
 private:
     Fetch *fetch;
     Decode *decode;

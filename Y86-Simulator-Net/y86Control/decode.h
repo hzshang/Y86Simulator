@@ -17,7 +17,7 @@ public:
 private slots:
     void dealFetchConnection();
     void dealFetchData();
-    void dealExecuteData();
+//    void dealExecuteData();
     void dealMemoryData();
     void dealWritebackData();
 private:
@@ -32,8 +32,8 @@ private:
     void fwd_valB();
 
     void sendToExecute(QJsonObject json);
-    void sendToMemory(QJsonObject json);
-    void sendToWriteback(QJsonObject json);
+//    void sendToMemory(QJsonObject json);
+//    void sendToWriteback(QJsonObject json);
 };
 
 #endif // DECODE_H

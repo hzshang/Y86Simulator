@@ -10,8 +10,8 @@ Memory::~Memory()
     delete serverForExecute;
     delete serverForDecode;
     delete serverForFetch;
-
 }
+
 void Memory:: dealExecuteConnection()
 {
     socketForExecute=serverForExecute->nextPendingConnection();
@@ -37,7 +37,7 @@ void  Memory::dealExecuteData()
 {
 
 }
-
+/*
 void  Memory::dealDecodeData()
 {
 
@@ -52,14 +52,14 @@ void  Memory::dealWritebackData()
 {
 
 }
-
+*/
 void Memory::init()
 {
     socketForExecute=NULL;
     socketForDecode=NULL;
     socketForFetch=NULL;
     clientToWriteback=NULL;
-
+    clientToClock=NULL;
     serverForExecute=new QTcpServer();
     serverForExecute->listen(QHostAddress::Any,MEMORY_FOR_EXECUTE_PORT);
     connect(serverForExecute,SIGNAL(newConnection()),this,SLOT(dealExecuteConnection()));
@@ -72,7 +72,7 @@ void Memory::init()
     serverForFetch->listen(QHostAddress::Any,MEMORY_FOR_FETCH_PORT);
     connect(serverForFetch,SIGNAL(newConnection()),this,SLOT(dealFetchConnection()));
 
-    clientToClock=NULL;
+
 }
 
 void Memory::sendToWriteback(QJsonObject json)
@@ -84,4 +84,26 @@ void Memory::sendToWriteback(QJsonObject json)
     }
     QByteArray bytes=QJsonDocument(json).toBinaryData();
     clientToWriteback->write(bytes);
+}
+
+void Memory::sendToFetch(QJsonObject json)
+{
+    if(socketForFetch->state()==QAbstractSocket::UnconnectedState)
+    {
+        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
+        return;
+    }
+    QByteArray bytes=QJsonDocument(json).toBinaryData();
+    socketForFetch->write(bytes);
+}
+
+void Memory::sendToDecode(QJsonObject json)
+{
+    if(socketForDecode->state()==QAbstractSocket::UnconnectedState)
+    {
+        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
+        return;
+    }
+    QByteArray bytes=QJsonDocument(json).toBinaryData();
+    socketForDecode->write(bytes);
 }

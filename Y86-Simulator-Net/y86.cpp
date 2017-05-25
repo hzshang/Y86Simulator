@@ -73,7 +73,7 @@ void Y86::dealData(QJsonObject json,QHostAddress address)
 void Y86::on_clockIsOK()
 {
     clockIsOk=true;
-    if(pool==0x000000ff)
+    if(pool==0x000001ff)
     {
         QJsonObject json;
         json.insert("id",3);
@@ -104,6 +104,11 @@ void Y86::begin()
 void Y86::pause()
 {
     runState=0;
+}
+
+void Y86::initPipeline()
+{
+
 }
 
 void Y86::beginPipeLine()
@@ -183,6 +188,17 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
     }
     if(json["ELevel"].toBool())
     {
+        if(fetch && !fetch->clientToExecute)
+        {
+            fetch->clientToExecute=new QTcpSocket();
+            connect(fetch->clientToExecute,SIGNAL(connected()),this,SLOT(f2e()));
+            fetch->clientToExecute->connectToHost(address,EXECUTE_FOR_FETCH_PORT);
+            if (!fetch->clientToExecute->waitForConnected())
+            {
+                delete fetch->clientToExecute;
+                fetch->clientToExecute=NULL;
+            }
+        }
         if(decode && !decode->clientToExecute)
         {
             decode->clientToExecute=new QTcpSocket();
@@ -273,7 +289,7 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
 void Y86::countConnection(int recvPool)
 {
     pool=pool|recvPool;
-    if(pool==0x000000ff && clockIsOk)
+    if(pool==0x000001ff && clockIsOk)
     {
         QJsonObject json;
         json.insert("id",3);
@@ -313,6 +329,11 @@ void Y86:: e2m()//7
 void Y86:: m2w()//0
 {
     pool=pool|0x01;
+}
+
+void Y86::f2e()//8
+{
+    pool=pool|0x100;
 }
 void Y86::init()
 {

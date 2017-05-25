@@ -72,14 +72,7 @@ void Writeback::sendToFetch(QJsonObject json)
     QByteArray bytes=QJsonDocument(json).toBinaryData();
     socketForFetch->write(bytes);
 }
-void Writeback::dealFetchData()
-{
 
-}
-void Writeback::dealDecodeData()
-{
-
-}
 void Writeback::dealMemoryData()
 {
 

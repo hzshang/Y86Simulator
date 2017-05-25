@@ -27,7 +27,7 @@ void Decode::sendToExecute(QJsonObject json)
     QByteArray bytes=QJsonDocument(json).toBinaryData();
     clientToExecute->write(bytes);
 }
-
+/*
 void Decode::sendToMemory(QJsonObject json)
 {
     if(clientToMemory->state()==QAbstractSocket::UnconnectedState)
@@ -49,7 +49,7 @@ void Decode::sendToWriteback(QJsonObject json)
     QByteArray bytes=QJsonDocument(json).toBinaryData();
     clientToWriteback->write(bytes);
 }
-
+*/
 Decode::~Decode()
 {
     delete serverForFetch;

@@ -23,9 +23,9 @@ private slots:
     void dealDecodeConnection();
     void dealFetchConnection();
     void dealExecuteData();
-    void dealDecodeData();
-    void dealFetchData();
-    void dealWritebackData();
+//    void dealDecodeData();
+//    void dealFetchData();
+//    void dealWritebackData();
 private:
     void init();
     void sendToWriteback(QJsonObject json);

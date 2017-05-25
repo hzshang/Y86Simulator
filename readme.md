@@ -38,7 +38,8 @@ Decode|Execute|4
 Decode|Memory|5
 Decode|Writeback|6
 Execute|Memory|7
-Memory|Writeback|0  
+Memory|Writeback|0
+Fetch|Execute|8
 ## 和时钟的连接  
 
 client|server

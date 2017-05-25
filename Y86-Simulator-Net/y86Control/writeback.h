@@ -21,8 +21,8 @@ private slots:
     void dealFetchConnection();
     void dealDecodeConnection();
     void dealMemoryConnection();
-    void dealFetchData();
-    void dealDecodeData();
+//    void dealFetchData();
+//    void dealDecodeData();
     void dealMemoryData();
 private:
     void init();

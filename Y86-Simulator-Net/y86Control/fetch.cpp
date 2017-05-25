@@ -17,6 +17,7 @@ void Fetch::init()
     clientToMemory=NULL;
     clientToWriteback=NULL;
     clientToClock=NULL;
+    clientToExecute=NULL;
 }
 
 void Fetch::sendToDecode(QJsonObject json)
@@ -29,34 +30,34 @@ void Fetch::sendToDecode(QJsonObject json)
     QByteArray bytes=QJsonDocument(json).toBinaryData();
     clientToDecode->write(bytes);
 }
+/*
+//void Fetch::sendToMemory(QJsonObject json)
+//{
+//    if(clientToMemory->state()==QAbstractSocket::UnconnectedState)
+//    {
+//        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
+//        return;
+//    }
+//    QByteArray bytes=QJsonDocument(json).toBinaryData();
+//    clientToMemory->write(bytes);
+//}
 
-void Fetch::sendToMemory(QJsonObject json)
-{
-    if(clientToMemory->state()==QAbstractSocket::UnconnectedState)
-    {
-        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
-        return;
-    }
-    QByteArray bytes=QJsonDocument(json).toBinaryData();
-    clientToMemory->write(bytes);
-}
+//void Fetch::sendToWriteback(QJsonObject json)
+//{
+//    if(clientToWriteback->state()==QAbstractSocket::UnconnectedState)
+//    {
+//        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
+//        return;
+//    }
+//    QByteArray bytes=QJsonDocument(json).toBinaryData();
+//    clientToWriteback->write(bytes);
+//}
 
-void Fetch::sendToWriteback(QJsonObject json)
-{
-    if(clientToWriteback->state()==QAbstractSocket::UnconnectedState)
-    {
-        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
-        return;
-    }
-    QByteArray bytes=QJsonDocument(json).toBinaryData();
-    clientToWriteback->write(bytes);
-}
-
-void Fetch::dealDecodeData()
-{
-
-}
-
+//void Fetch::dealDecodeData()
+//{
+//    //不用写该函数
+//}
+*/
 void Fetch::dealMemoryData()
 {
     //get M_icode&M_valA&M_Cnd;
@@ -65,6 +66,11 @@ void Fetch::dealMemoryData()
 void Fetch::dealWritebackData()
 {
     //get W_icode&W_valM;
+}
+
+void Fetch::dealExecuteData()
+{
+
 }
 
 void Fetch::receiveInstr(QString str)

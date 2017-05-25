@@ -9,16 +9,21 @@ public:
 
     ~Execute();
     QTcpServer *serverForDecode;
+    QTcpServer *serverForFetch;
     QTcpSocket *socketForDecode;
+    QTcpSocket *socketForFetch;
     QTcpSocket *clientToMemory;
     QTcpSocket *clientToClock;
 private slots:
     void dealDecodeConnection();
+    void dealFetchConnection();
+//    void dealFetchData();
     void dealDecodeData();
-    void dealMemoryData();
+//    void dealMemoryData();
 private:
     void init();
     void sendToMemory(QJsonObject json);
+    void sendToFetch(QJsonObject json);
 };
 
 #endif // EXECUTE_H
