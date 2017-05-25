@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     Memory* m;
     Writeback* w;
     QObject::connect(this,SIGNAL(sendInstr(QString)),f,SLOT(receiveInstr(QString)));
-    
+    QObject::connect(f,SIGNAL(sendFromFetch(QMap<QString,int>)),this,SLOT(receiveFromFetch(QMap<QString,int>)));
 }
 
 MainWindow::~MainWindow()
@@ -53,11 +53,40 @@ void MainWindow::readFile()
     QTextStream in(loadFile);
     instrCode =  in.readAll();
     ui->instrustion->setText(instrCode);
-    emit sendInstr(instrCode);
+    emit sendInstr(instrCode);//给f阶段发送指令信号
 }
 
 void MainWindow::on_openFile_clicked()
 {
     openFile();
     readFile();
+}
+
+void MainWindow::receiveFromFetch(QMap<QString,int> rev)
+{ 
+    ui->F_stat->clear();
+    if(rev["stat"] == 0)
+        ui->F_stat->setText("AOK");
+    else if(stat == 1)
+        ui->F_stat->setText("HTL");
+    else if(stat == 3)
+        ui->F_stat->setText("INS");
+    ui->F_stat->setStyleSheet("background-color:rgba(0,255,255,255)");
+
+    ui->PC->clear();
+    if(rev.contains("PC"))
+    {
+        QString str = QString::number(rev["PC"],10);
+        ui->PC->setText(str);
+        ui->PC->setStyleSheet("background-color:rgba(0,255,255,255)");
+    }
+
+    ui->predPC->clear();
+    if(rev.contains("predPC"))
+    {
+        QString str = QString::number(rev["predPC"],10);
+        ui->predPC->setText(str);
+        ui->predPC->setStyleSheet("background-color:rgba(0,255,255,255)");
+    }
+
 }

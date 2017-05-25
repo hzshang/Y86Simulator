@@ -24,6 +24,9 @@ private slots:
     void dealDecodeData();
     void dealMemoryData();
 private:
+    int W_stat,W_icode,W_valE,W_valM,W_dstE,W_dstM;
+    void writeReg(int dst,int val);
+    void writeback();
     void init();
 };
 

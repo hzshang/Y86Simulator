@@ -4,6 +4,7 @@
 #include <QTcpSocket>
 #include <QTcpServer>
 #include <QObject>
+#include <QMap>
 class Memory:QObject
 {
     Q_OBJECT
@@ -29,7 +30,12 @@ private slots:
     void dealFetchData();
     void dealWritebackData();
 private:
+    int M_stat,M_icode,M_Cnd,M_valE,M_valA,M_dstE,M_dstM;
+    int m_stat,m_icode,m_valE,m_valM,m_dstE,m_dstM;
+    QMap<int,int> mem;
     void init();
+    void memory();
+
 };
 
 #endif // MEMORY_H

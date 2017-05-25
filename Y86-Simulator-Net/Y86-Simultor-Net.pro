@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     y86Control/memory.cpp \
     y86Control/writeback.cpp \
     y86.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    globle.cpp
 
 HEADERS  += maindialog.h \
     clock.h \
@@ -44,7 +45,8 @@ HEADERS  += maindialog.h \
     y86Control/writeback.h \
     y86.h \
     const.h \
-    mainwindow.h
+    mainwindow.h \
+    globle.h
 
 FORMS    += maindialog.ui \
     mainwindow.ui

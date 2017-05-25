@@ -1,5 +1,7 @@
 #include "fetch.h"
 #include "const.h"
+#include "globle.h"
+#include "mainwindow.h"
 extern int broadcast;
 Fetch::Fetch()
 {
@@ -20,7 +22,12 @@ void Fetch::init()
 }
 void Fetch::dealDecodeData()
 {
+    //get:D_icode;
+}
 
+void Fetch::dealExecuteData()
+{
+    //get:E_icode,e_Cnd;
 }
 
 void Fetch::dealMemoryData()
@@ -111,75 +118,110 @@ void Fetch::select_PC()
     if(M_icode == 7 && !M_Cnd)
         PC = M_valA;
     else if(W_icode == 9)
+    {
         PC = W_valM;
+        isRet = false;
+    }
+    else if(isRisk)
+    {
+        PC = PC;
+        isRisk = false;
+    }
     else
         PC = predPC;
 }
 
 void Fetch::fetch()
-{
-    f_icode = instrCode[PC];
-    if(f_icode == HTL)
-        return;
-    f_ifun = instrCode[PC+1];
-    //异常处理代码，待补充
+{   
+    //分支错误处理
+    if(E_icode == 7 && !e_Cnd)
+        f_icode = 1;
+    //正常取值
+    else{
+        f_icode = instrCode[PC];
+        f_ifun = instrCode[PC+1];
+    }
 
+    if(f_icode == globle::HTL)
+        return;
     switch (f_icode) {
+    case 0:
+        f_stat = 1;
+        break;
     case 1:
+        if(!isRet)//ret处理
         f_valP = PC + 2;
+        else f_valP = PC;
+        f_stat = 0;
         break;
     case 2:
         f_rA = instrCode[PC+2];
         f_rB = instrCode[PC+3];
         f_valP = PC + 4;
+        f_stat = 0;
         break;
     case 3:
         f_rA = instrCode[PC+2];
         f_rB = instrCode[PC+3];
         f_valC = getValue(PC+4,PC+11);
         f_valP = PC + 12;
+        f_stat = 0;
         break;
     case 4:
         f_rA = instrCode[PC+2];
         f_rB = instrCode[PC+3];
         f_valC = getValue(PC+4,PC+11);
         f_valP = PC + 12;
+        f_stat = 0;
         break;
     case 5:
         f_rA = instrCode[PC+2];
         f_rB = instrCode[PC+3];
         f_valC = getValue(PC+4,PC+11);
         f_valP = PC + 12;
+        f_stat = 0;
         break;
     case 6:
         f_rA = instrCode[PC+2];
         f_rB = instrCode[PC+3];
         f_valP = PC + 4;
+        f_stat = 0;
         break;
     case 7:
         f_valC = getValue(PC+2,PC+9);
         f_valP = PC + 10;
+        f_stat = 0;
         break;
     case 8:
         f_valC = getValue(PC+2,PC+9);
         f_valP = PC + 10;
+        f_stat = 0;
         break;
     case 9:
         f_valP = PC +2;
+        isRet = true;
+        f_stat = 0;
         break;
     case 10:
         f_rA = instrCode[PC+2];
         f_rB = instrCode[PC+3];
         f_valP = PC + 4;
+        f_stat = 0;
         break;
     case 11:
         f_rA = instrCode[PC+2];
         f_rB = instrCode[PC+3];
         f_valP = PC + 4;
+        f_stat = 0;
         break;
     default:
+        f_stat = 3;//无效的指令
         break;
     }
+    if((E_icode == 5 || E_icode == 11) &&
+            (E_dstM == d_srcA || E_dstM == d_srcB))//加载使用数据冒险，暂停效果
+        isRisk = true;
+
 }
 
 void Fetch::predict_PC()
@@ -190,3 +232,15 @@ void Fetch::predict_PC()
         predPC = f_valP;
 }
 
+void Fetch::sendFromFetch(QMap<QString,int> send)
+{
+    if(f_stat != 0)
+        send["stat"] = f_stat;
+    else
+    {
+        send["stat"] = f_stat;
+        send["PC"] = PC;
+        send["predPC"] = predPC;
+    }
+
+}

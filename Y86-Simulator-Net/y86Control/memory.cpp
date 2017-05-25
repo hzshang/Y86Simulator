@@ -35,7 +35,7 @@ void  Memory:: dealFetchConnection()
 
 void  Memory::dealExecuteData()
 {
-
+    //get:M_stat,M_icode,M_Cnd,M_valE,M_valA,M_dstE,M_dstM;
 }
 
 void  Memory::dealDecodeData()
@@ -71,4 +71,39 @@ void Memory::init()
     serverForFetch=new QTcpServer();
     serverForFetch->listen(QHostAddress::Any,MEMORY_FOR_FETCH_PORT);
     connect(serverForFetch,SIGNAL(newConnection()),this,SLOT(dealFetchConnection()));
+}
+
+void Memory::memory()
+{
+    m_stat = M_stat;
+    if(m_stat != 0)
+        return;
+    m_icode = M_icode;
+    m_dstE = M_dstE;
+    m_dstM = M_dstM;
+    switch (m_icode) {
+    case 1:
+        break;
+    case 4:
+        mem[M_valE] = M_valA;
+        break;
+    case 5:
+        if(mem.contains(M_valE))
+            m_valM = mem[M_valE];
+        else
+            m_stat = 2;
+        break;
+    case 8:
+        mem[M_valE] = M_valA;
+        break;
+    case 9:
+        if(mem.contains(M_valA))
+            m_valM = mem[M_valA];
+        else
+            m_stat = 2;
+        break;
+    default:
+        break;
+    }
+
 }

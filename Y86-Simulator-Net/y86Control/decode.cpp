@@ -1,5 +1,8 @@
 #include "decode.h"
 #include "const.h"
+#include "globle.h"
+#include "mainwindow.h"
+
 Decode::Decode()
 {
     init();
@@ -35,7 +38,7 @@ void Decode::dealFetchData()
 
 void Decode::dealExecuteData()
 {
-   //get: e_desE,e_valE,
+   //get: e_desE,e_valE,E_icode,e_Cnd;
 }
 
 void Decode::dealMemoryData()
@@ -52,22 +55,35 @@ int Decode::getRegValue(int src)
 {
     switch(src)
       {
-         case 0:return eax;
-         case 1:return ecx;
-         case 2:return edx;
-         case 3:return ebx;
-         case 4:return esp;
-         case 5:return ebp;
-         case 6:return esi;
-         case 7:return edi;
+         case 0:return globle::eax;
+         case 1:return globle::ecx;
+         case 2:return globle::edx;
+         case 3:return globle::ebx;
+         case 4:return globle::esp;
+         case 5:return globle::ebp;
+         case 6:return globle::esi;
+         case 7:return globle::edi;
       }
+    return -1;
 }
 
 void Decode::decode()
 {
-    //分支错误，冒险处理等
+    //分支错误
+    if(E_icode == 7 && !e_Cnd)
+        d_icode = 1;
+    //加载，使用数据冒险处理
+    else if(isRisk)
+    {
+        d_icode = icodeStorage;
+        isRisk = false;
+        globle::Risk = false;
+    }
+    else
+    {
+        d_icode = D_icode;
+    }
     d_stat = D_stat;
-    d_icode = D_icode;
     d_ifun = D_ifun;
     d_valC = D_valC;
 
@@ -120,6 +136,13 @@ void Decode::decode()
         }
     }
     //加载使用数据冒险处理
+    if((E_icode == 5 || E_icode == 11) &&
+            (E_dstM == d_srcA || E_dstM == d_srcB))
+    {
+        icodeStorage = d_icode;
+        d_icode = 1;
+        isRisk = true;
+    }
 }
 
 //d_valA的转发器和选择器
@@ -195,4 +218,9 @@ void Decode::fwd_valB()
         d_valB = getRegValue(d_srcB);
         return;
     }
+}
+
+void Decode::sendFromDecode(QMap<QString, int> send)
+{
+
 }
