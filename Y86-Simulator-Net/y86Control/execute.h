@@ -27,8 +27,11 @@ private:
     int e_stat,e_icode,e_Cnd,e_valE,e_valA,e_dstE,e_dstM;
 
     void init();
+    QJsonObject dataToMemory();
     void sendToMemory(QJsonObject json);
+    QJsonObject dataToFetch();
     void sendToFetch(QJsonObject json);
+    QJsonObject dataToDecode();
 
     void ALU_A();
     void ALU_B();

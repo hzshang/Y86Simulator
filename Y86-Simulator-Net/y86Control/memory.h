@@ -31,8 +31,11 @@ private:
     int m_stat,m_icode,m_valE,m_valM,m_dstE,m_dstM;
     QMap<int,int> mem;
     void init();
+    QJsonObject dataToWriteback();
     void sendToWriteback(QJsonObject json);
+    QJsonObject dataToFetch();
     void sendToFetch(QJsonObject json);
+    QJsonObject dataToDecode();
     void sendToDecode(QJsonObject json);
     void memory();
 };

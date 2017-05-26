@@ -17,6 +17,53 @@ void Execute::init()
     connect(serverForFetch,SIGNAL(newConnection()),this,SLOT(dealFetchConnection()));
 }
 
+QJsonObject Execute::dataToMemory()
+{
+    QJsonObject sendData;
+    if(e_stat != 0)
+    {
+        sendData.insert("M_stat",e_stat);
+        return sendData;
+    }
+    sendData.insert("M_stat",e_stat);
+    sendData.insert("M_icode",e_icode);
+    switch (e_icode) {
+    case 1:
+        return sendData;
+    case 2:
+    case 3:
+    case 6:
+        sendData.insert("M_dstE",e_dstE);
+        sendData.insert("M_valE",e_valE);
+        return sendData;
+    case 5:
+        sendData.insert("M_valE",e_valE);
+        sendData.insert("M_dstM",e_dstM);
+        return sendData;
+    case 4:
+        sendData.insert("M_valE",e_valE);
+        sendData.insert("M_valA",e_valA);
+        return sendData;
+    case 8:
+    case 9:
+    case 10:
+        sendData.insert("M_dstE",e_dstE);
+        sendData.insert("M_valE",e_valE);
+        sendData.insert("M_valA",e_valA);
+        return sendData;
+    case 11:
+        sendData.insert("M_dstM",e_dstM);
+        sendData.insert("M_dstE",e_dstE);
+        sendData.insert("M_valE",e_valE);
+        sendData.insert("M_valA",e_valA);
+        return sendData;
+    case 7:
+        sendData.insert("M_valA",e_valA);
+        return sendData;
+    }
+    return sendData;
+}
+
 void Execute::sendToMemory(QJsonObject json)
 {
     if(clientToMemory->state()==QAbstractSocket::UnconnectedState)
@@ -55,6 +102,24 @@ void Execute::dealFetchConnection()
 //    connect(socketForFetch,SIGNAL(readyRead()),this,SLOT(dealFetchData()));
     serverForFetch->pauseAccepting();
 }
+
+//生成传到Fetch阶段的数据
+QJsonObject Execute::dataToFetch()
+{
+    QJsonObject sendData;
+    if(e_stat != 0)
+        return sendData;
+    sendData.insert("E_icode",E_icode);
+    if(E_icode == 7)
+        sendData.insert("e_Cnd",e_Cnd);
+    if(E_icode == 5 || E_icode  == 11)
+    {
+        sendData.insert("E_dstM",E_dstM);
+    }
+
+    return sendData;
+}
+
 void Execute::sendToFetch(QJsonObject json)
 {
     if(socketForFetch->state()==QAbstractSocket::UnconnectedState)
@@ -65,6 +130,35 @@ void Execute::sendToFetch(QJsonObject json)
     QByteArray bytes=QJsonDocument(json).toBinaryData();
     socketForFetch->write(bytes);
 }
+
+//生成传输到Decode阶段的数据
+QJsonObject Execute::dataToDecode()
+{
+    QJsonObject sendData;
+    if(e_stat != 0)
+        return sendData;
+    sendData.insert("E_icode",E_icode);
+    if(E_icode == 7)
+        sendData.insert("e_Cnd",e_Cnd);
+
+    //加载，使用数据冒险
+    if(E_icode == 5 || E_icode  == 11)
+    {
+        sendData.insert("E_dstM",E_dstM);
+    }
+
+    //转发
+    if(E_icode == 2 || E_icode == 3 || E_icode == 6
+          || E_icode == 8 || E_icode == 9 || E_icode
+            == 10 || E_icode == 11)
+        sendData.insert("e_dstE",e_dstE);
+    if(E_icode != 1 && E_icode != 7)
+        sendData.insert("e_valE",e_valE);
+
+    return sendData;
+}
+
+//需要补写Execute 到 Decode阶段的数据传输，冒险处理
 
 void Execute::dealDecodeData()
 {
@@ -156,23 +250,41 @@ void Execute::execute()
     if(e_icode == 0)
         return;
     e_icode = E_icode;
-    e_dstM = E_dstM;
+    //e_dstM = E_dstM;
+    //e_dstE = E_dstE;
     ALU_A();
     ALU_B();
     switch (E_icode) {
     case 1:
         break;
+    case 4:
+        e_valA = E_valA;
+        e_valE = aluB + aluA;
+        break;
     case 2:
     case 3:
-    case 4:
+        e_dstE = E_dstE;
+        e_valE = aluB + aluA;
+        break;
     case 5:
+        e_dstM = E_dstM;
+        e_valE = aluB + aluA;
+        break;
     case 8:
     case 9:
     case 10:
+        e_dstE = E_dstE;
+        e_valA = E_valA;
+        e_valE = aluB + aluA;
+        break;
     case 11:
+        e_dstE = E_dstE;
+        e_dstM = E_dstM;
+        e_valA = E_valA;
         e_valE = aluB + aluA;
         break;
     case 6:
+        e_dstE = E_dstE;
         switch (E_ifun) {
         case 0:
             e_valE = aluB + aluA;
@@ -192,6 +304,7 @@ void Execute::execute()
         setCC();
         break;
     case 7:
+        e_valA = E_valA;
         switch (E_icode) {
         case 0:
             e_Cnd = 1;

@@ -57,6 +57,39 @@ void Writeback::init()
      clientToClock=NULL;
 }
 
+//生成传输到decode的数据
+QJsonObject Writeback::dataToDecode()
+{
+    //get: W_dstM,W_valM,W_dstE,W_valE
+    QJsonObject sendData;
+    if(W_stat != 0)
+        return sendData;
+    switch (W_icode) {
+    case 2:
+    case 3:
+    case 6:
+    case 8:
+    case 9:
+    case 10:
+        sendData.insert("W_dstE",W_dstE);
+        sendData.insert("W_valE",W_valE);
+        return sendData;
+    case 5:
+        sendData.insert("W_dstM",W_valM);
+        sendData.insert("W_valM",W_valM);
+        return sendData;
+    case 11:
+        sendData.insert("W_dstE",W_dstE);
+        sendData.insert("W_valE",W_valE);
+        sendData.insert("W_dstM",W_valM);
+        sendData.insert("W_valM",W_valM);
+        return sendData;
+    default:
+        return sendData;
+    }
+    return sendData;
+}
+
 void Writeback::sendToDecode(QJsonObject json)
 {
     if(socketForDecode->state()==QAbstractSocket::UnconnectedState)
@@ -66,6 +99,19 @@ void Writeback::sendToDecode(QJsonObject json)
     }
     QByteArray bytes=QJsonDocument(json).toBinaryData();
     socketForDecode->write(bytes);
+}
+
+//生成传输到fetch的数据
+QJsonObject Writeback::dataToFetch()
+{
+    //get:W_icode,W_valM
+    QJsonObject sendData;
+    if(W_stat != 0)
+        return sendData;
+    sendData.insert("W_icode",W_icode);
+    if(W_icode == 5 || W_icode == 11)
+        sendData.insert("W_valM",W_valM);
+    return sendData;
 }
 
 void Writeback::sendToFetch(QJsonObject json)

@@ -22,7 +22,7 @@ private slots:
     void beginpipelineSlot(Y86 *);
     void on_openFile_clicked();
 
-    void receiveFromFetch(QMap<QString,int>);
+    void receiveFromFetch(QJsonObject);
 
 private:
     Ui::MainWindow *ui;

@@ -20,6 +20,70 @@ void Decode::init()
     connect(serverForFetch,SIGNAL(newConnection()),this,SLOT(dealFetchConnection()));
 }
 
+//生成传递给Execute阶段的数据
+QJsonObject Decode::dataToExecute()
+{
+    QJsonObject sendData;
+    if(d_stat != 0)
+    {
+        sendData.insert("E_stat",d_stat);
+        return sendData;
+    }
+    sendData.insert("E_stat",d_stat);
+    sendData.insert("E_icode",d_icode);
+    sendData.insert("E_ifun",d_ifun);
+    switch (d_icode) {
+    case 1:
+        return sendData;
+    case 2:
+        sendData.insert("E_srcA",d_srcA);
+        sendData.insert("E_valA",d_valA);
+        sendData.insert("E_dstE",d_dstE);
+        return sendData;
+    case 3:
+        sendData.insert("E_dstE",d_dstE);
+        return sendData;
+    case 4:
+        sendData.insert("E_srcA",d_srcA);
+        sendData.insert("E_valA",d_valA);
+        sendData.insert("E_srcB",d_srcB);
+        sendData.insert("E_valB",d_valB);
+        return sendData;
+    case 5:
+        sendData.insert("E_srcB",d_srcB);
+        sendData.insert("E_valB",d_valB);
+        sendData.insert("E_dstM",d_dstM);
+        return sendData;
+    case 6:
+    case 9:
+    case 10:
+        sendData.insert("E_srcA",d_srcA);
+        sendData.insert("E_valA",d_valA);
+        sendData.insert("E_srcB",d_srcB);
+        sendData.insert("E_valB",d_valB);
+        sendData.insert("E_dstE",d_dstE);
+        return sendData;
+    case 7:
+        sendData.insert("E_valA",d_valA);
+        return sendData;
+    case 8:
+        sendData.insert("E_srcB",d_srcB);
+        sendData.insert("E_valB",d_valB);
+        sendData.insert("E_dstE",d_dstE);
+        sendData.insert("E_valA",d_valA);
+        return sendData;
+    case 11:
+        sendData.insert("E_srcA",d_srcA);
+        sendData.insert("E_valA",d_valA);
+        sendData.insert("E_srcB",d_srcB);
+        sendData.insert("E_valB",d_valB);
+        sendData.insert("E_dstE",d_dstE);
+        sendData.insert("E_dstM",d_dstM);
+        return sendData;
+    }
+    return sendData;
+}
+
 void Decode::sendToExecute(QJsonObject json)
 {
     if(clientToExecute->state()==QAbstractSocket::UnconnectedState)
@@ -30,6 +94,37 @@ void Decode::sendToExecute(QJsonObject json)
     QByteArray bytes=QJsonDocument(json).toBinaryData();
     clientToExecute->write(bytes);
 }
+
+//生成传输到fetch阶段的数据，加载使用数据冒险处理
+QJsonObject Decode::dataToFetch()
+{
+    QJsonObject sendData;
+    if(d_stat != 0)
+        return sendData;
+    switch (d_icode) {
+    case 2:
+        sendData.insert("d_srcA",d_srcA);
+        return sendData;
+    case 4:
+    case 6:
+    case 9:
+    case 10:
+    case 11:
+        sendData.insert("d_srcA",d_srcA);
+        sendData.insert("d_srcB",d_srcB);
+        return sendData;
+    case 5:
+    case 8:
+        sendData.insert("d_srcB",d_srcB);
+        return sendData;
+    default:
+        return sendData;
+    }
+    return sendData;
+}
+
+//需要补充decode和fetch的数据传输函数
+
 /*
 void Decode::sendToMemory(QJsonObject json)
 {
@@ -78,7 +173,7 @@ void Decode::dealExecuteData()
    //get: e_desE,e_valE,E_icode,e_Cnd;
     QByteArray bytes=clientToExecute->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
-    //TODO
+
 }
 
 void Decode::dealMemoryData()

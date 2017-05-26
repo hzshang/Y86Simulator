@@ -21,6 +21,43 @@ void Fetch::init()
     clientToClock=NULL;
     clientToExecute=NULL;
 }
+
+//生成发送到Decode阶段的数据
+QJsonObject Fetch::DataToDecode()
+{
+    QJsonObject sendData;
+    if(f_stat != 0)
+    {
+        sendData.insert("D_stat",f_stat);
+        return sendData;
+    }
+    sendData.insert("D_stat",f_stat);
+    sendData.insert("D_icode",f_icode);
+    sendData.insert("D_valP",f_valP);
+    switch (f_icdoe) {
+    case 1:
+    case 9:
+        return sendData;
+    case 2:
+    case 6:
+    case 10:
+    case 11:
+        sendData.insert("D_rA",f_rA);
+        sendData.insert("D_rB",f_rB);
+        return sendData;
+    case 3:
+    case 4:
+    case 5:
+    case 7:
+    case 8:
+        sendData.insert("D_rA",f_rA);
+        sendData.insert("D_rB",f_rB);
+        sendData.insert("D_valC",f_valC);
+        return sendData;
+    }
+    return sendData;
+}
+
 void Fetch::sendToDecode(QJsonObject json)
 {
     if(clientToDecode->state()==QAbstractSocket::UnconnectedState)
@@ -38,6 +75,7 @@ void Fetch::dealDecodeData()
     QByteArray bytes=clientToDecode->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
     //TODO
+>>>>>>> complete
 }
 
 void Fetch::dealExecuteData()
@@ -290,7 +328,7 @@ void Fetch::predict_PC()
         predPC = f_valP;
 }
 
-void Fetch::sendFromFetch(QMap<QString,int> send)
+/*void Fetch::sendFromFetch(QMap<QString,int> send)
 {
     if(f_stat != 0)
         send["stat"] = f_stat;
@@ -301,4 +339,4 @@ void Fetch::sendFromFetch(QMap<QString,int> send)
         send["predPC"] = predPC;
     }
 
-}
+}*/

@@ -36,7 +36,10 @@ private:
     void sel_fwd_valA();
     void fwd_valB();
 
+    QJsonObject dataToExecute();
     void sendToExecute(QJsonObject json);
+    QJsonObject dataToFetch();
+
 //    void sendToMemory(QJsonObject json);
 //    void sendToWriteback(QJsonObject json);
 };

@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     Memory* m;
     Writeback* w;
     QObject::connect(this,SIGNAL(sendInstr(QString)),f,SLOT(receiveInstr(QString)));
-    QObject::connect(f,SIGNAL(sendFromFetch(QMap<QString,int>)),this,SLOT(receiveFromFetch(QMap<QString,int>)));
+    QObject::connect(f,SIGNAL(sendFromFetch(QJsonObject)),this,SLOT(receiveFromFetch(QJsonObject)));
 }
 
 MainWindow::~MainWindow()
@@ -62,9 +62,9 @@ void MainWindow::on_openFile_clicked()
     readFile();
 }
 
-void MainWindow::receiveFromFetch(QMap<QString,int> rev)
+void MainWindow::receiveFromFetch(QJsonObject rev)
 { 
-    ui->F_stat->clear();
+    /*ui->F_stat->clear();
     if(rev["stat"] == 0)
         ui->F_stat->setText("AOK");
     else if(stat == 1)
@@ -87,6 +87,7 @@ void MainWindow::receiveFromFetch(QMap<QString,int> rev)
         QString str = QString::number(rev["predPC"],10);
         ui->predPC->setText(str);
         ui->predPC->setStyleSheet("background-color:rgba(0,255,255,255)");
-    }
+    }*/
+    //需要改写
 
 }

@@ -29,7 +29,9 @@ private:
     void writeReg(int dst,int val);
     void writeback();
     void init();
+    QJsonObject dataToDecode();
     void sendToDecode(QJsonObject json);
+    QJsonObject dataToFetch();
     void sendToFetch(QJsonObject json);
 };
 

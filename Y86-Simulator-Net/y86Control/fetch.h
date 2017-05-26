@@ -20,7 +20,7 @@ private slots:
     void dealWritebackData();
 
 signals:
-    void sendFromFetch(QMap<QString,int>);
+    void sendFromFetch(QJsonObject);
 private:
     int predPC = 0;
     int PC = 0;
@@ -40,6 +40,7 @@ private:
     void switchStrToInt();
     int getValue(int l,int r);
     void init();
+    QJsonObject DataToDecode();
     void sendToDecode(QJsonObject json);
 //    void sendToMemory(QJsonObject json);
 //    void sendToWriteback(QJsonObject json);
