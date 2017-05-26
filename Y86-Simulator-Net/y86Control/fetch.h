@@ -15,11 +15,9 @@ public:
     QTcpSocket *clientToExecute;
 private slots:
     void receiveInstr(QString);
-    void dealDecodeData();
     void dealExecuteData();
     void dealMemoryData();
     void dealWritebackData();
-    void dealExecuteData();
 
 signals:
     void sendFromFetch(QMap<QString,int>);

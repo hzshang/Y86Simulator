@@ -81,7 +81,9 @@ void Writeback::sendToFetch(QJsonObject json)
 
 void Writeback::dealMemoryData()
 {
-
+    QByteArray bytes=socketForMemory->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    //TODO
 }
 
 //给寄存器写回相应的值

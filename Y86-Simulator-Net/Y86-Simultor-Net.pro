@@ -33,11 +33,8 @@ SOURCES += main.cpp\
     y86Control/writeback.cpp \
     y86.cpp \
     mainwindow.cpp \
-<<<<<<< HEAD
-    y86Control/clock.cpp
-=======
+    y86Control/clock.cpp \
     globle.cpp
->>>>>>> Dev_liu
 
 HEADERS  += maindialog.h \
     y86Control/fetch.h \
@@ -48,11 +45,8 @@ HEADERS  += maindialog.h \
     y86.h \
     const.h \
     mainwindow.h \
-<<<<<<< HEAD
-    y86Control/clock.h
-=======
+    y86Control/clock.h \
     globle.h
->>>>>>> Dev_liu
 
 FORMS    += maindialog.ui \
     mainwindow.ui

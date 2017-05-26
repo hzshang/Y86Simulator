@@ -69,12 +69,11 @@ void Execute::sendToFetch(QJsonObject json)
 void Execute::dealDecodeData()
 {
     //get:E_stat,E_icode,E_ifun,E_valC,E_valA,E_valB,E_dstE,E_dstM;
+    QByteArray bytes=socketForDecode->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    //TODO
 }
 
-void Execute::dealMemoryData()
-{
-
-}
 
 //预处理aluA的值
 void Execute::ALU_A()

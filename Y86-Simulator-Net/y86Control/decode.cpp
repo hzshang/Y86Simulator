@@ -68,21 +68,33 @@ void Decode::dealFetchConnection()
 void Decode::dealFetchData()
 {
     //get: D_stat,D_icode,D_rA,D_rB,D_valC,D_valP;
+    QByteArray bytes=socketForFetch->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    //TODO
 }
 
 void Decode::dealExecuteData()
 {
    //get: e_desE,e_valE,E_icode,e_Cnd;
+    QByteArray bytes=clientToExecute->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    //TODO
 }
 
 void Decode::dealMemoryData()
 {
    //get: M_desM,m_valM,M_desE,M_valE
+    QByteArray bytes=clientToMemory->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    //TODO
 }
 
 void Decode::dealWritebackData()
 {
    //get: W_dstM,W_valM,W_dstE,W_valE
+    QByteArray bytes=clientToWriteback->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    //TODO
 }
 //读取寄存器的值
 int Decode::getRegValue(int src)
@@ -252,9 +264,4 @@ void Decode::fwd_valB()
         d_valB = getRegValue(d_srcB);
         return;
     }
-}
-
-void Decode::sendFromDecode(QMap<QString, int> send)
-{
-
 }

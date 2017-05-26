@@ -36,6 +36,9 @@ void  Memory:: dealFetchConnection()
 void  Memory::dealExecuteData()
 {
     //get:M_stat,M_icode,M_Cnd,M_valE,M_valA,M_dstE,M_dstM;
+    QByteArray bytes=socketForExecute->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    //TODO
 }
 /*
 void  Memory::dealDecodeData()

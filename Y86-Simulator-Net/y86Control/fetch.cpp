@@ -35,11 +35,17 @@ void Fetch::sendToDecode(QJsonObject json)
 void Fetch::dealDecodeData()
 {
     //get:D_icode;
+    QByteArray bytes=clientToDecode->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    //TODO
 }
 
 void Fetch::dealExecuteData()
 {
     //get:E_icode,e_Cnd;
+    QByteArray bytes=clientToExecute->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    //TODO
 }
 /*
 //void Fetch::sendToMemory(QJsonObject json)
@@ -69,19 +75,27 @@ void Fetch::dealExecuteData()
 //    //不用写该函数
 //}
 */
-void Fetch::dealMemoryData()
+void Fetch:: dealMemoryData()
 {
     //get M_icode&M_valA&M_Cnd;
+    QByteArray bytes=clientToMemory->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    //TODO
 }
 
 void Fetch::dealWritebackData()
 {
     //get W_icode&W_valM;
+    QByteArray bytes=clientToWriteback->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    //TODO
 }
 
 void Fetch::dealExecuteData()
 {
-
+    QByteArray bytes=clientToExecute->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    //TODO
 }
 
 void Fetch::receiveInstr(QString str)
