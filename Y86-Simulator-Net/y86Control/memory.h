@@ -23,12 +23,15 @@ private slots:
     void dealDecodeConnection();
     void dealFetchConnection();
     void dealExecuteData();
-//    void dealDecodeData();
-//    void dealFetchData();
-//    void dealWritebackData();
+    void dealClockData();
+    //void dealDecodeData();
+
+signals:
+    void sendFromMemory(QJsonObject);
 private:
-    int M_stat,M_icode,M_Cnd,M_valE,M_valA,M_dstE,M_dstM;
+    int M_stat=-1,M_icode,M_Cnd,M_valE,M_valA,M_dstE,M_dstM;
     int m_stat,m_icode,m_valE,m_valM,m_dstE,m_dstM;
+    QString instruction;
     QMap<int,int> mem;
     void init();
     QJsonObject dataToWriteback();

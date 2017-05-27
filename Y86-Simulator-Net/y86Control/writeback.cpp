@@ -33,10 +33,6 @@ void Writeback::dealMemoryConnection()
     serverForMemory->pauseAccepting();
 }
 
-void Writeback::dealMemoryData()
-{
-    //get:W_stat,W_icode,W_valE,W_valM,W_dstE,W_dstM;
-}
 void Writeback::init()
 {
      socketForFetch=NULL;
@@ -108,9 +104,11 @@ QJsonObject Writeback::dataToFetch()
     QJsonObject sendData;
     if(W_stat != 0)
         return sendData;
-    sendData.insert("W_icode",W_icode);
-    if(W_icode == 5 || W_icode == 11)
+    if(W_icode == 9)
+    {
+        sendData.insert("W_icode",W_icode);
         sendData.insert("W_valM",W_valM);
+    }
     return sendData;
 }
 
@@ -127,9 +125,26 @@ void Writeback::sendToFetch(QJsonObject json)
 
 void Writeback::dealMemoryData()
 {
+    //get:W_stat,W_icode,W_valE,W_valM,W_dstE,W_dstM;
     QByteArray bytes=socketForMemory->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
-    //TODO
+    emit sendFromWriteback(json);
+
+    W_stat = json.value("W_stat").toInt();
+
+    if(json.contains("W_icode"))
+    {
+        W_icode = json.value("W_icode").toInt();
+        instruction = json.value("instruction").toString();
+    }
+    if(json.contains("W_valE"))
+        W_valE = json.value("W_valE").toInt();
+    if(json.contains("W_valM"))
+        W_valM = json.value("W_valM").toInt();
+    if(json.contains("W_dstE"))
+        W_dstE = json.value("W_dstE").toInt();
+    if(json.contains("W_dstM"))
+        W_dstM = json.value("W_dstM").toInt();
 }
 
 //给寄存器写回相应的值
@@ -199,5 +214,20 @@ void Writeback::writeback()
         break;
     default:
         break;
+    }
+}
+void Writeback::dealClockData()
+{
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        writeback();
+        sendToDecode(dataToDecode());
+        sendToFetch(dataToFetch());
+        //反馈给时钟
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        W_stat = -1;
     }
 }

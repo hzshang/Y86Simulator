@@ -17,7 +17,13 @@ void Clock::ready()
 void Clock::nextStep()
 {
     //向五个阶段发送数据，走一步
-    QByteArray bytes=QString("begin").toUtf8();
+    QByteArray bytes=QString("nextStep").toUtf8();
+    for(int i=4;i>=0;i--)
+        socket[i]->write(bytes);
+}
+void Clock::restartPipeline()
+{
+    QByteArray bytes=QString("restart").toUtf8();
     for(int i=0;i<5;i++)
         socket[i]->write(bytes);
 }

@@ -9,6 +9,7 @@ public:
     explicit Clock();
     void ready();//开始接受连接
     void nextStep();
+    void restartPipeline();
 private slots:
     void on_newConnection();
     void on_readyRead();

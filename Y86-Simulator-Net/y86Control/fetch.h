@@ -18,7 +18,8 @@ private slots:
     void dealExecuteData();
     void dealMemoryData();
     void dealWritebackData();
-
+    void dealDecodeData();
+    void dealClockData();
 signals:
     void sendFromFetch(QJsonObject);
 private:
@@ -30,20 +31,25 @@ private:
 
     int M_icode=-1,M_valA=-1,M_Cnd=-1;
     int W_icode=-1,W_valM=-1;
+    int E_icode=-1,e_Cnd=-1,E_dstM=-1;
+    int d_srcA=-1,d_srcB=-1;
 
     QString instruction;
     QVector<int> instrCode;
+    QString instrString;
+
+    void init();
     void  select_PC();
+    QString getRegStr(int k);
+    QString getInstruction();
     void fetch();
     void  predict_PC();
     int hexTodec(QString str);
     void switchStrToInt();
     int getValue(int l,int r);
-    void init();
     QJsonObject DataToDecode();
     void sendToDecode(QJsonObject json);
-//    void sendToMemory(QJsonObject json);
-//    void sendToWriteback(QJsonObject json);
+    QJsonObject dataToMainWindow();
 };
 
 #endif // FETCH_H

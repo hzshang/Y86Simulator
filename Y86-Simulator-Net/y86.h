@@ -39,6 +39,11 @@ private slots:
     void e2m();
     void m2w();
     void f2e();
+
+    void on_PipelineRun();
+    void on_PipelineStop();
+    void on_PipelineStep();
+    void on_PipelineRestart();
 private:
     Fetch *fetch;
     Decode *decode;
@@ -49,7 +54,7 @@ private:
     QUdpSocket *broadcast;
     Clock *clock;
     int circleTime;//周期时间，单位ms
-    volatile int runState;//运行状态  running 1,step 2,pause 0 仅对master有效
+    volatile int runState;//运行状态  running 1,step 2,pause 0 ,4 restart 仅对master有效
     volatile bool stopBroadcast;
     volatile bool stepIsDone;
     volatile int pool;

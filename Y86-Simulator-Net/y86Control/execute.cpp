@@ -17,74 +17,6 @@ void Execute::init()
     connect(serverForFetch,SIGNAL(newConnection()),this,SLOT(dealFetchConnection()));
 }
 
-QJsonObject Execute::dataToMemory()
-{
-    QJsonObject sendData;
-    if(e_stat != 0)
-    {
-        sendData.insert("M_stat",e_stat);
-        return sendData;
-    }
-    sendData.insert("M_stat",e_stat);
-    sendData.insert("M_icode",e_icode);
-    switch (e_icode) {
-    case 1:
-        return sendData;
-    case 2:
-    case 3:
-    case 6:
-        sendData.insert("M_dstE",e_dstE);
-        sendData.insert("M_valE",e_valE);
-        return sendData;
-    case 5:
-        sendData.insert("M_valE",e_valE);
-        sendData.insert("M_dstM",e_dstM);
-        return sendData;
-    case 4:
-        sendData.insert("M_valE",e_valE);
-        sendData.insert("M_valA",e_valA);
-        return sendData;
-    case 8:
-    case 9:
-    case 10:
-        sendData.insert("M_dstE",e_dstE);
-        sendData.insert("M_valE",e_valE);
-        sendData.insert("M_valA",e_valA);
-        return sendData;
-    case 11:
-        sendData.insert("M_dstM",e_dstM);
-        sendData.insert("M_dstE",e_dstE);
-        sendData.insert("M_valE",e_valE);
-        sendData.insert("M_valA",e_valA);
-        return sendData;
-    case 7:
-        sendData.insert("M_valA",e_valA);
-        return sendData;
-    }
-    return sendData;
-}
-
-void Execute::sendToMemory(QJsonObject json)
-{
-    if(clientToMemory->state()==QAbstractSocket::UnconnectedState)
-    {
-        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
-        return;
-    }
-    QByteArray bytes=QJsonDocument(json).toBinaryData();
-    clientToMemory->write(bytes);
-}
-
-void Execute::sendToFetch(QJsonObject json)
-{
-    if(clientToFetch->state()==QAbstractSocket::UnconnectedState)
-    {
-        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
-        return;
-    }
-    QByteArray bytes=QJsonDocument(json).toBinaryData();
-    clientToFetch->write(bytes);
-}
 Execute::~Execute()
 {
     delete serverForDecode;
@@ -137,13 +69,17 @@ QJsonObject Execute::dataToDecode()
     QJsonObject sendData;
     if(e_stat != 0)
         return sendData;
-    sendData.insert("E_icode",E_icode);
+
     if(E_icode == 7)
+    {
+        sendData.insert("E_icode",E_icode);
         sendData.insert("e_Cnd",e_Cnd);
+    }
 
     //加载，使用数据冒险
     if(E_icode == 5 || E_icode  == 11)
     {
+        sendData.insert("E_icode",E_icode);
         sendData.insert("E_dstM",E_dstM);
     }
 
@@ -151,23 +87,117 @@ QJsonObject Execute::dataToDecode()
     if(E_icode == 2 || E_icode == 3 || E_icode == 6
           || E_icode == 8 || E_icode == 9 || E_icode
             == 10 || E_icode == 11)
+    {
+        sendData.insert("E_icode",E_icode);
         sendData.insert("e_dstE",e_dstE);
-    if(E_icode != 1 && E_icode != 7)
         sendData.insert("e_valE",e_valE);
+    }
 
     return sendData;
 }
 
+void Execute::sendToDecode(QJsonObject json)
+{
+    if(socketForDecode->state()==QAbstractSocket::UnconnectedState)
+    {
+        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
+        return;
+    }
+    QByteArray bytes=QJsonDocument(json).toBinaryData();
+    socketForDecode->write(bytes);
+}
+
 //需要补写Execute 到 Decode阶段的数据传输，冒险处理
+QJsonObject Execute::dataToMemory()
+{
+    QJsonObject sendData;
+    if(e_stat != 0)
+    {
+        sendData.insert("M_stat",e_stat);
+        return sendData;
+    }
+    sendData.insert("M_stat",e_stat);
+    sendData.insert("M_icode",e_icode);
+    sendData.insert("instruction",instruction);
+    switch (e_icode) {
+    case 1:
+        return sendData;
+    case 2:
+    case 3:
+    case 6:
+        sendData.insert("M_dstE",e_dstE);
+        sendData.insert("M_valE",e_valE);
+        return sendData;
+    case 5:
+        sendData.insert("M_valE",e_valE);
+        sendData.insert("M_dstM",e_dstM);
+        return sendData;
+    case 4:
+        sendData.insert("M_valE",e_valE);
+        sendData.insert("M_valA",e_valA);
+        return sendData;
+    case 8:
+    case 9:
+    case 10:
+        sendData.insert("M_dstE",e_dstE);
+        sendData.insert("M_valE",e_valE);
+        sendData.insert("M_valA",e_valA);
+        return sendData;
+    case 11:
+        sendData.insert("M_dstM",e_dstM);
+        sendData.insert("M_dstE",e_dstE);
+        sendData.insert("M_valE",e_valE);
+        sendData.insert("M_valA",e_valA);
+        return sendData;
+    case 7:
+        sendData.insert("M_valA",e_valA);
+        sendData.insert("M_Cnd",e_Cnd);
+        return sendData;
+    }
+    return sendData;
+}
+
+void Execute::sendToMemory(QJsonObject json)
+{
+    if(clientToMemory->state()==QAbstractSocket::UnconnectedState)
+    {
+        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
+        return;
+    }
+    QByteArray bytes=QJsonDocument(json).toBinaryData();
+    clientToMemory->write(bytes);
+}
 
 void Execute::dealDecodeData()
 {
     //get:E_stat,E_icode,E_ifun,E_valC,E_valA,E_valB,E_dstE,E_dstM;
     QByteArray bytes=socketForDecode->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
-    //TODO
-}
+    emit sendFromExecute(json);
 
+    E_stat = json.value("E_stat").toInt();
+    if(json.contains("E_icode"))
+    {
+        E_icode = json.value("E_icode").toInt();
+        E_ifun = json.value("E_ifun").toInt();
+        instruction = json.value("instruction").toString();
+    }
+
+    if(json.contains("E_valC"))
+        E_valC = json.value("E_valC").toInt();
+    if(json.contains("E_valA"))
+        E_valA = json.value("E_valA").toInt();
+    if(json.contains("E_valB"))
+        E_valB = json.value("E_valB").toInt();
+    if(json.contains("E_dstE"))
+        E_dstE = json.value("E_dstE").toInt();
+    if(json.contains("E_dstM"))
+        E_dstM = json.value("E_dstM").toInt();
+    if(json.contains("E_srcA"))
+        E_srcA = json.value("E_srcA").toInt();
+    if(json.contains("E_srcB"))
+        E_srcB = json.value("E_srcB").toInt();
+}
 
 //预处理aluA的值
 void Execute::ALU_A()
@@ -247,7 +277,7 @@ void Execute::setCC()
 void Execute::execute()
 {
     e_stat = E_stat;
-    if(e_icode == 0)
+    if(e_stat != 0)
         return;
     e_icode = E_icode;
     //e_dstM = E_dstM;
@@ -345,5 +375,22 @@ void Execute::execute()
         break;
     default:
         break;
+    }
+}
+
+void Execute::dealClockData()
+{
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        execute();
+        emit sendCC(ZF,SF,OF);
+        sendToMemory(dataToMemory());
+        sendToDecode(dataToDecode());
+        sendToFetch(dataToFetch());
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        E_stat = -1;
     }
 }

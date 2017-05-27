@@ -86,26 +86,6 @@ void Y86::on_stepIsDone()
     stepIsDone=true;
 }
 
-void Y86::begin()
-{
-    while(runState!=0)
-    {
-        stepIsDone=false;
-        clock->nextStep();
-        int temp;
-        while(!stepIsDone)//循环等待stepISDone变为true
-            temp=0;
-        usleep(circleTime*1000);
-        if(runState==2)
-            runState=0;
-    }
-}
-
-void Y86::pause()
-{
-    runState=0;
-}
-
 void Y86::initPipeline()
 {
 
@@ -125,50 +105,60 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
         {
             fetch->clientToClock=new QTcpSocket();
             fetch->clientToClock->connectToHost(address,CLOCK_PORT);
-            if(fetch->clientToClock->waitForConnected())
+            if(!fetch->clientToClock->waitForConnected())
             {
                 delete fetch->clientToClock;
                 fetch->clientToClock=NULL;
+            }else{
+                connect(fetch->clientToClock,SIGNAL(readyRead()),fetch,SLOT(dealClockData()));
             }
         }
         if(decode&& !decode->clientToClock)
         {
             decode->clientToClock=new QTcpSocket();
             decode->clientToClock->connectToHost(address,CLOCK_PORT);
-            if(decode->clientToClock->waitForConnected())
+            if(!decode->clientToClock->waitForConnected())
             {
                 delete decode->clientToClock;
                 decode->clientToClock=NULL;
+            }else{
+                connect(decode->clientToClock,SIGNAL(readyRead()),decode,SLOT(dealClockData()));
             }
         }
         if(execute&& !execute->clientToClock)
          {
             execute->clientToClock=new QTcpSocket();
             execute->clientToClock->connectToHost(address,CLOCK_PORT);
-            if(execute->clientToClock->waitForConnected())
+            if(!execute->clientToClock->waitForConnected())
             {
                 delete execute->clientToClock;
                 execute->clientToClock=NULL;
+            }else{
+                connect(execute->clientToClock,SIGNAL(readyRead()),execute,SLOT(dealClockData()));
             }
         }
         if(memory&& !memory->clientToClock)
         {
             memory->clientToClock=new QTcpSocket();
             memory->clientToClock->connectToHost(address,CLOCK_PORT);
-            if(memory->clientToClock->waitForConnected())
+            if(!memory->clientToClock->waitForConnected())
             {
                 delete memory->clientToClock;
                 memory->clientToClock=NULL;
+            }else{
+                connect(memory->clientToClock,SIGNAL(readyRead()),memory,SLOT(dealClockData()));
             }
         }
         if(writeback&& !writeback->clientToClock)
         {
             writeback->clientToClock=new QTcpSocket();
             writeback->clientToClock->connectToHost(address,CLOCK_PORT);
-            if(writeback->clientToClock->waitForConnected())
+            if(!writeback->clientToClock->waitForConnected())
             {
                 delete writeback->clientToClock;
                 writeback->clientToClock=NULL;
+            }else{
+                connect(writeback->clientToClock,SIGNAL(readyRead()),writeback,SLOT(dealClockData()));
             }
         }
     }
@@ -183,6 +173,8 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
             {
                 delete fetch->clientToDecode;
                 fetch->clientToDecode=NULL;
+            }else{
+                conect(fetch->clientToDecode,SIGNAL(readyRead()),fetch,SLOT(dealDecodeData());
             }
         }
     }
@@ -197,6 +189,8 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
             {
                 delete fetch->clientToExecute;
                 fetch->clientToExecute=NULL;
+            }else{
+                connect(fetch->clientToExecute,SIGNAL(readyRead()),fetch,SLOT(dealExecuteData()));
             }
         }
         if(decode && !decode->clientToExecute)
@@ -208,6 +202,8 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
             {
                 delete decode->clientToExecute;
                 decode->clientToExecute=NULL;
+            }else{
+                connect(decode->clientToExecute,SIGNAL(readyRead()),fetch,SLOT(dealExecuteData()));
             }
         }
     }
@@ -222,6 +218,8 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
             {
                 delete fetch->clientToMemory;
                 fetch->clientToMemory=NULL;
+            }else{
+                connect(fetch->clientToMemory,SIGNAL(readyRead()),fetch,SLOT(dealMemoryData()));
             }
         }
         if(decode &&!decode->clientToMemory)
@@ -233,6 +231,8 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
             {
                 delete decode->clientToMemory;
                 decode->clientToMemory=NULL;
+            }else{
+                connect(decode->clientToMemory,SIGNAL(readyRead()),decode,SLOT(dealMemoryData()));
             }
         }
         if(execute &&!execute->clientToMemory)
@@ -259,6 +259,8 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
                 delete fetch->clientToWriteback;
                 fetch->clientToWriteback=NULL;
             }
+        }else{
+            connect(fetch->clientToWriteback,SIGNAL(readyRead()),fetch,SLOT(dealWritebackData()));
         }
         if(decode && !decode->clientToWriteback)
         {
@@ -269,6 +271,8 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
             {
                 delete decode->clientToWriteback;
                 decode->clientToWriteback=NULL;
+            }else{
+                connect(decode->clientToWriteback,SIGNAL(readyRead()),decode,SLOT(dealWritebackData()));
             }
         }
         if(memory && !memory->clientToWriteback)
@@ -334,6 +338,52 @@ void Y86:: m2w()//0
 void Y86::f2e()//8
 {
     pool=pool|0x100;
+}
+
+void Y86::on_PipelineRun()
+{
+    runState=1;
+    begin();
+}
+
+void Y86::on_PipelineStop()
+{
+    runState=0;
+}
+
+void Y86::on_PipelineStep()
+{
+    runState=2;
+}
+
+void Y86::on_PipelineRestart()
+{
+    runState=4;
+}
+
+void Y86::begin()
+{
+    if(clicked)
+    {
+        while(runState!=0)
+        {
+            stepIsDone=false;
+            if(runState==4)
+            {
+                clock->restartPipeline();
+                runState=0;
+                break;
+            }
+            clock->nextStep();
+            int temp;
+            while(!stepIsDone)//循环等待stepISDone变为true
+                temp=0;
+            usleep(circleTime*1000);
+            if(runState==2)
+                runState=0;
+        }
+    }
+
 }
 void Y86::init()
 {

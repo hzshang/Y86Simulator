@@ -33,29 +33,6 @@ void  Memory:: dealFetchConnection()
     serverForFetch->pauseAccepting();
 }
 
-void  Memory::dealExecuteData()
-{
-    //get:M_stat,M_icode,M_Cnd,M_valE,M_valA,M_dstE,M_dstM;
-    QByteArray bytes=socketForExecute->readAll();
-    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
-    //TODO
-}
-/*
-void  Memory::dealDecodeData()
-{
-
-}
-
-void  Memory::dealFetchData()
-{
-
-}
-
-void  Memory::dealWritebackData()
-{
-
-}
-*/
 void Memory::init()
 {
     socketForExecute=NULL;
@@ -87,6 +64,7 @@ QJsonObject Memory::dataToWriteback()
     }
     sendData.insert("W_stat",m_stat);
     sendData.insert("W_icode",m_icode);
+    sendData.insert("instruction",instruction);
     switch (m_icode) {
     case 1:
     case 4:
@@ -137,12 +115,15 @@ QJsonObject Memory::dataToFetch()
     QJsonObject sendData;
     if(m_stat != 0)
         return sendData;
-    sendData.insert("M_icode",M_icode);
     if(M_icode == 7)
+    {
+        sendData.insert("M_icode",M_icode);
         sendData.insert("M_Cnd",M_Cnd);
-    if(M_icode == 4 || M_icode == 8 || M_icode == 9
-            || M_icode == 10 || M_icode == 11)
-        sendData.insert("M_valA",M_valA);
+        sendData.insert("M_valA",M_valA)
+    }
+    //if(M_icode == 4 || M_icode == 8 || M_icode == 9
+            //|| M_icode == 10 || M_icode == 11)
+        //sendData.insert("M_valA",M_valA);
     return sendData;
 }
 
@@ -173,24 +154,24 @@ QJsonObject Memory::dataToDecode()
        sendData.insert("M_dstE",M_dstE);
        sendData.insert("M_valE",M_valE);
        return sendData;
-    case 4:
-        sendData.insert("M_valE",M_valE);
-        return sendData;
+    //case 4:
+        //sendData.insert("M_valE",M_valE);
+        //return sendData;
     case 5:
         sendData.insert("M_dstM",M_dstM);
-        sendData.insert("M_valE",M_valE);
+        //sendData.insert("M_valE",M_valE);
         sendData.insert("m_valM",m_valM);
         return sendData;
     case 9:
         sendData.insert("M_dstE",M_dstE);
         sendData.insert("M_valE",M_valE);
-        sendData.insert("m_valM",m_valM);
+        //sendData.insert("m_valM",m_valM);
         return sendData;
     case 11:
         sendData.insert("M_dstM",M_dstM);
-        sendData.insert("M_valE",M_valE);
         sendData.insert("m_valM",m_valM);
         sendData.insert("M_dstE",M_dstE);
+        sendData.insert("M_valE",M_valE);
         return sendData;
     default:
         return sendData;
@@ -209,6 +190,31 @@ void Memory::sendToDecode(QJsonObject json)
     socketForDecode->write(bytes);
 }
 
+void  Memory::dealExecuteData()
+{
+    //get:M_stat,M_icode,M_Cnd,M_valE,M_valA,M_dstE,M_dstM;
+    QByteArray bytes=socketForExecute->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    emit sendFromMemory(json);
+
+    M_stat = json.value("M_stat").toInt();
+
+    if(json.contains("M_icode"))
+    {
+        M_icode = json.value("M_icode").toInt();
+        instruction = json.value("instruction").toString();
+    }
+    if(json.contains("M_Cnd"))
+        M_Cnd = json.value("M_Cnd").toInt();
+    if(json.contains("M_valE"))
+        M_valE = json.value("M_valE").toInt();
+    if(json.contains("M_valA"))
+        M_valA = json.value("M_valA").toInt();
+    if(json.contains("M_dstE"))
+        M_dstE = json.value("M_dstE").toInt();
+    if(json.contains("M_dstM"))
+        M_dstM = json.value("M_dstM").toInt();
+}
 void Memory::memory()
 {
     m_stat = M_stat;
@@ -266,4 +272,20 @@ void Memory::memory()
         break;
     }
 
+}
+
+void Memory::dealClockData()
+{
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        memory();
+        sendToDecode(dataToDecode());
+        sendToFetch(dataToFetch());
+        sendToWriteback(dataToWriteback());
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        M_stat = -1;
+    }
 }

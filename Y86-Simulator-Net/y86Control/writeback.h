@@ -21,11 +21,13 @@ private slots:
     void dealFetchConnection();
     void dealDecodeConnection();
     void dealMemoryConnection();
-//    void dealFetchData();
-//    void dealDecodeData();
     void dealMemoryData();
+    void dealClockData();
+signals:
+    void sendFromWriteback(QJsonObject);
 private:
-    int W_stat,W_icode,W_valE,W_valM,W_dstE,W_dstM;
+    int W_stat=-1,W_icode,W_valE,W_valM,W_dstE,W_dstM;
+    QString instruction;
     void writeReg(int dst,int val);
     void writeback();
     void init();

@@ -20,6 +20,12 @@ void Decode::init()
     connect(serverForFetch,SIGNAL(newConnection()),this,SLOT(dealFetchConnection()));
 }
 
+Decode::~Decode()
+{
+    delete serverForFetch;
+
+}
+
 //生成传递给Execute阶段的数据
 QJsonObject Decode::dataToExecute()
 {
@@ -32,6 +38,7 @@ QJsonObject Decode::dataToExecute()
     sendData.insert("E_stat",d_stat);
     sendData.insert("E_icode",d_icode);
     sendData.insert("E_ifun",d_ifun);
+    sendData.insert("instruction",instruction);
     switch (d_icode) {
     case 1:
         return sendData;
@@ -42,17 +49,20 @@ QJsonObject Decode::dataToExecute()
         return sendData;
     case 3:
         sendData.insert("E_dstE",d_dstE);
+        sendData.insert("E_valC",d_valC);
         return sendData;
     case 4:
         sendData.insert("E_srcA",d_srcA);
         sendData.insert("E_valA",d_valA);
         sendData.insert("E_srcB",d_srcB);
         sendData.insert("E_valB",d_valB);
+        sendData.insert("E_valC",d_valC);
         return sendData;
     case 5:
         sendData.insert("E_srcB",d_srcB);
         sendData.insert("E_valB",d_valB);
         sendData.insert("E_dstM",d_dstM);
+        sendData.insert("E_valC",d_valC);
         return sendData;
     case 6:
     case 9:
@@ -123,36 +133,17 @@ QJsonObject Decode::dataToFetch()
     return sendData;
 }
 
-//需要补充decode和fetch的数据传输函数
-
-/*
-void Decode::sendToMemory(QJsonObject json)
+void Decode::sendToFetch(QJsonObject json)
 {
-    if(clientToMemory->state()==QAbstractSocket::UnconnectedState)
+    if(socketForFetch->state()==QAbstractSocket::UnconnectedState)
     {
         QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
         return;
     }
     QByteArray bytes=QJsonDocument(json).toBinaryData();
-    clientToMemory->write(bytes);
+    socketForFetch->write(bytes);
 }
 
-void Decode::sendToWriteback(QJsonObject json)
-{
-    if(clientToWriteback->state()==QAbstractSocket::UnconnectedState)
-    {
-        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
-        return;
-    }
-    QByteArray bytes=QJsonDocument(json).toBinaryData();
-    clientToWriteback->write(bytes);
-}
-*/
-Decode::~Decode()
-{
-    delete serverForFetch;
-
-}
 void Decode::dealFetchConnection()
 {
     socketForFetch=serverForFetch->nextPendingConnection();
@@ -165,7 +156,22 @@ void Decode::dealFetchData()
     //get: D_stat,D_icode,D_rA,D_rB,D_valC,D_valP;
     QByteArray bytes=socketForFetch->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
-    //TODO
+    emit sendFromDecode(json);
+    D_stat = json.value("D_stat").toInt();
+    if(json.contains("D_icode"))
+    {
+        D_icode = json.value("D_icode").toInt();
+        D_ifun = json.value("D_ifun").toInt();
+        D_valP = json.value("D_valP").toInt();
+        instruction = json.value("instruction").toString();
+    }
+
+    if(json.contains("D_rA"))
+        D_rA = json.value("D_rA").toInt();
+    if(json.contains("D_rB"))
+        D_rB = json.value("D_rB").toInt();
+    if(json.contains("D_valC"))
+        D_valC = json.value("D_valC").toInt();
 }
 
 void Decode::dealExecuteData()
@@ -173,7 +179,20 @@ void Decode::dealExecuteData()
    //get: e_desE,e_valE,E_icode,e_Cnd;
     QByteArray bytes=clientToExecute->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    if(json.contains("E_icode"))
+        E_icode = json.value("E_icode").toInt();
+    else
+        E_icode = -1;
 
+    if(json.contains("e_Cnd"))
+        e_Cnd = json.value("e_Cnd").toInt();
+    if(json.contains("E_dstM"))
+        E_dstM = json.value("E_dstM").toInt();
+    if(json.contains("e_dstE"))
+    {
+        e_dstE = json.value("e_dstE").toInt();
+        e_valE = json.value("e_valE").toInt();
+    }
 }
 
 void Decode::dealMemoryData()
@@ -181,7 +200,21 @@ void Decode::dealMemoryData()
    //get: M_desM,m_valM,M_desE,M_valE
     QByteArray bytes=clientToMemory->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
-    //TODO
+    if(json.contains("M_dstM"))
+    {
+        M_dstM = json.value("M_dstM").toInt();
+        m_valM = json.value("m_valM").toInt();
+    }
+    else
+        M_dstM = -1;
+
+    if(json.contains("M_dstE"))
+    {
+        M_dstE = json.value("M_dstE").toInt();
+        M_valE = json.value("M_valE").toInt();
+    }
+    else
+        M_dstE = -1;
 }
 
 void Decode::dealWritebackData()
@@ -189,8 +222,23 @@ void Decode::dealWritebackData()
    //get: W_dstM,W_valM,W_dstE,W_valE
     QByteArray bytes=clientToWriteback->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
-    //TODO
+    if(json.contains("W_dstM"))
+    {
+        W_dstM = json.value("W_dstM").toInt();
+        W_valM = json.value("W_valM").toInt();
+    }
+    else
+        W_dstM = -1;
+
+    if(json.contains("W_dstE"))
+    {
+        W_dstE = json.value("W_dstE").toInt();
+        W_valE = json.value("W_valE").toInt();
+    }
+    else
+        W_dstE = -1;
 }
+
 //读取寄存器的值
 int Decode::getRegValue(int src)
 {
@@ -218,7 +266,6 @@ void Decode::decode()
     {
         d_icode = icodeStorage;
         isRisk = false;
-        globle::Risk = false;
     }
     else
     {
@@ -226,7 +273,7 @@ void Decode::decode()
     }
     d_stat = D_stat;
     d_ifun = D_ifun;
-    d_valC = D_valC;
+    //d_valC = D_valC;
 
     if(!d_stat)
     {
@@ -239,14 +286,17 @@ void Decode::decode()
             break;
         case 3:
             d_dstE = D_rB;
+            d_valC = D_valC;
             break;
         case 4:
             d_srcA = D_rA;
             d_srcB = D_rB;
+            d_valC = D_valC;
             break;
         case 5:
             d_srcB = D_rB;
             d_dstM = D_rA;
+            d_valC = D_valC;
             break;
         case 6:
             d_srcA = D_rA;
@@ -283,6 +333,7 @@ void Decode::decode()
         icodeStorage = d_icode;
         d_icode = 1;
         isRisk = true;
+
     }
 }
 
@@ -358,5 +409,32 @@ void Decode::fwd_valB()
     {
         d_valB = getRegValue(d_srcB);
         return;
+    }
+}
+
+
+void Decode::dealClockData()
+{
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        clientToWriteback->waitForReadyRead();
+        clientToMemory->waitForReadyRead();
+        clientToExecute->waitForReadyRead();
+        decode();
+        sel_fwd_valA();
+        fwd_valB();
+        sendToExecute(dataToExecute());
+        sendToFetch(dataToFetch());
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        D_stat = -1;
+        isRisk = false;
+        E_icode = -1;
+        M_dstE = -1;
+        M_dstM = -1;
+        W_dstE = -1;
+        W_dstM = -1;
     }
 }

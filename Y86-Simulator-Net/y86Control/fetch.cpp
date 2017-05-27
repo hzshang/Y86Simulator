@@ -33,8 +33,10 @@ QJsonObject Fetch::DataToDecode()
     }
     sendData.insert("D_stat",f_stat);
     sendData.insert("D_icode",f_icode);
+    sendData.insert("D_ifun",f_ifun);
     sendData.insert("D_valP",f_valP);
-    switch (f_icdoe) {
+    sendData.insert("instruction",instrString);
+    switch (f_icode) {
     case 1:
     case 9:
         return sendData;
@@ -69,56 +71,20 @@ void Fetch::sendToDecode(QJsonObject json)
     clientToDecode->write(bytes);
 }
 
-void Fetch::dealDecodeData()
-{
-    //get:D_icode;
-    QByteArray bytes=clientToDecode->readAll();
-    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
-    //TODO
->>>>>>> complete
-}
-
-void Fetch::dealExecuteData()
-{
-    //get:E_icode,e_Cnd;
-    QByteArray bytes=clientToExecute->readAll();
-    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
-    //TODO
-}
-/*
-//void Fetch::sendToMemory(QJsonObject json)
-//{
-//    if(clientToMemory->state()==QAbstractSocket::UnconnectedState)
-//    {
-//        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
-//        return;
-//    }
-//    QByteArray bytes=QJsonDocument(json).toBinaryData();
-//    clientToMemory->write(bytes);
-//}
-
-//void Fetch::sendToWriteback(QJsonObject json)
-//{
-//    if(clientToWriteback->state()==QAbstractSocket::UnconnectedState)
-//    {
-//        QMessageBox::warning(NULL,"Warning",QString("已断开连接"),QMessageBox::Ok);
-//        return;
-//    }
-//    QByteArray bytes=QJsonDocument(json).toBinaryData();
-//    clientToWriteback->write(bytes);
-//}
-
-//void Fetch::dealDecodeData()
-//{
-//    //不用写该函数
-//}
-*/
 void Fetch:: dealMemoryData()
 {
     //get M_icode&M_valA&M_Cnd;
     QByteArray bytes=clientToMemory->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
-    //TODO
+    if(json.contains("M_icode"))
+    {
+        M_icode = json.value("M_icode").toInt();
+        M_Cnd = json.value("M_Cnd").toInt();
+        M_valA = json.value("M_valA").toInt();
+    }
+    else
+        M_icode = -1;
+
 }
 
 void Fetch::dealWritebackData()
@@ -126,19 +92,50 @@ void Fetch::dealWritebackData()
     //get W_icode&W_valM;
     QByteArray bytes=clientToWriteback->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
-    //TODO
+    if(json.contains("W_icode"))
+    {
+        W_icode = json.value("W_icode").toInt();
+        W_valM = json.value("W_valM").toInt();
+    }
+    else
+        W_icode = -1;
 }
 
 void Fetch::dealExecuteData()
 {
     QByteArray bytes=clientToExecute->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
-    //TODO
+    if(json.contains("E_icode"))
+    {
+        E_icode = json.value("E_icode").toInt();
+        if(json.contains("e_Cnd"))
+            e_Cnd = json.value("e_Cnd").toInt();
+        else
+            E_dstM = json.value("E_dstM");
+    }
+    else
+        E_icode = -1;
+}
+
+void Fetch::dealDecodeData()
+{
+    //get:D_icode;
+    QByteArray bytes=clientToDecode->readAll();
+    QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    if(json.contains("d_srcA"))
+        d_srcA = json.value("d_srcA").toInt();
+    else
+        d_srcA = -1;
+    if(json.contains("d_srcB"))
+        d_srcB = json.value("d_srcB").toInt();
+    else
+        d_srcB = -1;
 }
 
 void Fetch::receiveInstr(QString str)
 {
     instruction = str;
+    switchStrToInt();
 }
 
 //将字符串形式的十六进制数据转为十进制,在switchStrToInt()函数中调用
@@ -209,6 +206,117 @@ int Fetch::getValue(int l, int r)
     return value;
 }
 
+//获取寄存器的字符串表示，在getInstruction()函数中调用
+QString Fetch::getRegStr(int k)
+{
+    QString str = "";
+    switch(k)
+    {
+        case 0:s += "%eax";
+               break;
+        case 1:s += "%ecx";
+               break;
+        case 2:s += "%edx";
+               break;
+        case 3:s += "%ebx";
+               break;
+        case 4:s += "%esp";
+               break;
+        case 5:s += "%ebp";
+               break;
+        case 6:s += "%esi";
+               break;
+        case 7:s += "%edi";
+               break;
+        default:break;
+    }
+    return str;
+}
+
+QString Fetch::getInstruction()
+{
+    QString s = "";
+    switch(instrCode[PC])
+    {
+         case 0:s += "halt";
+                break;
+         case 1:s += "nop";
+                break;
+         case 2:s += "rrmovl ";
+                s += getRegStr(f_rA);
+                s += ",";
+                s += getRegStr(f_rB);
+                break;
+         case 3:s += "irmovl $";
+                s += QString::number(f_valC,10);
+                s += ",";
+                s += getRegStr(f_rB);
+                break;
+         case 4:s += "rmmovl ";
+                s += getRegStr(f_rA);
+                s += ",";
+                s += QString::number(f_valC,10);
+                s += "("+getRegStr(f_rB)+")";
+                break;
+         case 5:s += "mrmovl ";
+                s += QString::number(f_valC,10);
+                s += "("+getRegStr(f_rB)+")";
+                s += ",";
+                s += getRegStr(f_rA);
+                break;
+         case 6:switch(f_ifun)
+               {
+                  case 0:s += "addl ";
+                        break;
+                  case 1:s += "subl ";
+                        break;
+                  case 2:s += "andl ";
+                        break;
+                  case 3:s += "xorl ";
+                        break;
+                  default:break;
+               }
+                s += getRegStr(f_rA);
+                s += ",";
+                s += getRegStr(f_rB);
+                break;
+         case 7:switch(f_ifun)
+               {
+                  case 0:s += "jmp ";
+                         break;
+                  case 1:s += "jle ";
+                         break;
+                  case 2:s += "jl ";
+                         break;
+                  case 3:s += "je ";
+                         break;
+                  case 4:s += "jne ";
+                         break;
+                  case 5:s += "jge ";
+                         break;
+                  case 6:s += "jg ";
+                         break;
+                  default:break;
+               }
+                s += QString::number(f_valC,10);
+                break;
+         case 8:s += "call ";
+                s += QString::number(f_valC,10);
+                break;
+         case 9:s += "ret ";
+                 break;
+         case 10:s += "pushl ";
+                s += getRegStr(f_rA);
+                break;
+         case 11:
+                s += "popl ";
+                s += getRegStr(f_rA);
+                break;
+         default:break;
+    }
+    return s;
+}
+
 void Fetch::select_PC()
 {
     if(M_icode == 7 && !M_Cnd)
@@ -233,13 +341,12 @@ void Fetch::fetch()
     if(E_icode == 7 && !e_Cnd)
         f_icode = 1;
     //正常取值
-    else{
+    else
         f_icode = instrCode[PC];
-        f_ifun = instrCode[PC+1];
-    }
 
     if(f_icode == globle::HTL)
         return;
+    f_ifun = instrCode[PC+1];
     switch (f_icode) {
     case 0:
         f_stat = 1;
@@ -314,6 +421,7 @@ void Fetch::fetch()
         f_stat = 3;//无效的指令
         break;
     }
+    instrString = getInstruction();
     if((E_icode == 5 || E_icode == 11) &&
             (E_dstM == d_srcA || E_dstM == d_srcB))//加载使用数据冒险，暂停效果
         isRisk = true;
@@ -328,15 +436,46 @@ void Fetch::predict_PC()
         predPC = f_valP;
 }
 
-/*void Fetch::sendFromFetch(QMap<QString,int> send)
+//需要添加发送到mainwindow的信号
+QJsonObject Fetch::dataToMainWindow()
 {
+    QJsonObject sendData;
     if(f_stat != 0)
-        send["stat"] = f_stat;
+        sendData.insert("stat",f_stat);
     else
     {
-        send["stat"] = f_stat;
-        send["PC"] = PC;
-        send["predPC"] = predPC;
+        sendData.insert("stat",f_stat);
+        sendData.insert("PC",PC);
+        sendData.insert("predPC", predPC);
+        sendData.insert("instruction",instrString);
     }
-
-}*/
+}
+void Fetch::dealClockData()
+{
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        //有可能相互阻碍
+        clientToWriteback->waitForReadyRead();
+        clientToMemory->waitForReadyRead();
+        clientToExecute->waitForReadyRead();
+        clientToDecode->waitForReadyRead();
+        select_PC();
+        fetch();
+        getInstruction();
+        emit sendFromFetch(dataToMainWindow());
+        predict_PC();
+        sendToDecode(dataToDecode());
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        PC = 0;
+        f_stat = -1;
+        instrString = "";
+        isRet = false;
+        isRisk = false;
+        E_icode = -1;
+        M_icode = -1;
+        W_icode = -1;
+    }
+}
