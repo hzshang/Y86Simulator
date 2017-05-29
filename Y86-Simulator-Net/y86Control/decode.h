@@ -17,7 +17,7 @@ public:
 private slots:
     void dealFetchConnection();
     void dealFetchData();
-//    void dealExecuteData();
+    void dealExecuteData();
     void dealMemoryData();
     void dealWritebackData();
     void dealClockData();

@@ -6,7 +6,8 @@ Y86::Y86(QObject *parent)
     listen=new QUdpSocket();
     broadcast=new QUdpSocket();
     broadcast->moveToThread(this);
-    circleTime=100;
+    circleTime=50;
+    master=false;
 }
 //发射广播寻找局域网客户端，建立连接
 void Y86::ready(bool FLevel, bool DLevel, bool ELevel, bool MLevel, bool WLevel)
@@ -174,7 +175,7 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
                 delete fetch->clientToDecode;
                 fetch->clientToDecode=NULL;
             }else{
-                conect(fetch->clientToDecode,SIGNAL(readyRead()),fetch,SLOT(dealDecodeData());
+                connect(fetch->clientToDecode,SIGNAL(readyRead()),fetch,SLOT(dealDecodeData()));
             }
         }
     }
@@ -361,29 +362,30 @@ void Y86::on_PipelineRestart()
     runState=4;
 }
 
+void Y86::changeCircleTime(int value)
+{
+    circleTime=value;
+}
+
 void Y86::begin()
 {
-    if(clicked)
+    while(runState!=0)
     {
-        while(runState!=0)
+        stepIsDone=false;
+        if(runState==4)
         {
-            stepIsDone=false;
-            if(runState==4)
-            {
-                clock->restartPipeline();
-                runState=0;
-                break;
-            }
-            clock->nextStep();
-            int temp;
-            while(!stepIsDone)//循环等待stepISDone变为true
-                temp=0;
-            usleep(circleTime*1000);
-            if(runState==2)
-                runState=0;
+            clock->restartPipeline();
+            runState=0;
+            break;
         }
+        clock->nextStep();
+        int temp;
+        while(!stepIsDone)//循环等待stepISDone变为true
+            temp=0;
+        usleep(circleTime*1000);
+        if(runState==2)
+            runState=0;
     }
-
 }
 void Y86::init()
 {

@@ -200,7 +200,7 @@ void Writeback::writeback()
         writeReg(W_dstE,W_valE);
         break;
     case 8:
-        writeRed(W_dstE,W_valE);
+        writeReg(W_dstE,W_valE);
         break;
     case 9:
         writeReg(W_dstE,W_valE);

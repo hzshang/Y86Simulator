@@ -15,6 +15,7 @@ public:
     explicit Y86(QObject *parent=0);
     void broadData(QJsonObject &data);
     float sleepTime;
+    bool master;//如果含有F，则设为true
 protected:
     void run();
 signals:
@@ -44,6 +45,7 @@ private slots:
     void on_PipelineStop();
     void on_PipelineStep();
     void on_PipelineRestart();
+    void changeCircleTime(int);
 private:
     Fetch *fetch;
     Decode *decode;
@@ -59,7 +61,7 @@ private:
     volatile bool stepIsDone;
     volatile int pool;
     bool clockIsOk;//连接阶段，如果五个阶段都连上了clock，则设为true  仅对master有效
-    bool master;//如果含有F，则设为true
+
     void init();
     void beginPipeLine();
     void beignConnect(QJsonObject,QHostAddress);

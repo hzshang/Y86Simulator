@@ -111,7 +111,7 @@ void Fetch::dealExecuteData()
         if(json.contains("e_Cnd"))
             e_Cnd = json.value("e_Cnd").toInt();
         else
-            E_dstM = json.value("E_dstM");
+            E_dstM = json.value("E_dstM").toInt();
     }
     else
         E_icode = -1;
@@ -209,7 +209,7 @@ int Fetch::getValue(int l, int r)
 //获取寄存器的字符串表示，在getInstruction()函数中调用
 QString Fetch::getRegStr(int k)
 {
-    QString str = "";
+    QString s = "";
     switch(k)
     {
         case 0:s += "%eax";
@@ -230,7 +230,7 @@ QString Fetch::getRegStr(int k)
                break;
         default:break;
     }
-    return str;
+    return s;
 }
 
 QString Fetch::getInstruction()
@@ -465,7 +465,7 @@ void Fetch::dealClockData()
         getInstruction();
         emit sendFromFetch(dataToMainWindow());
         predict_PC();
-        sendToDecode(dataToDecode());
+        sendToDecode(DataToDecode());
         //执行该时钟周期
     }else if(str=="restart")
     {

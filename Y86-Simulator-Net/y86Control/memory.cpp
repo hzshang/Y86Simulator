@@ -119,7 +119,7 @@ QJsonObject Memory::dataToFetch()
     {
         sendData.insert("M_icode",M_icode);
         sendData.insert("M_Cnd",M_Cnd);
-        sendData.insert("M_valA",M_valA)
+        sendData.insert("M_valA",M_valA);
     }
     //if(M_icode == 4 || M_icode == 8 || M_icode == 9
             //|| M_icode == 10 || M_icode == 11)
@@ -176,7 +176,7 @@ QJsonObject Memory::dataToDecode()
     default:
         return sendData;
     }
-    return sendDatal;
+    return sendData;
 }
 
 void Memory::sendToDecode(QJsonObject json)

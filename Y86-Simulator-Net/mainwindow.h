@@ -43,6 +43,8 @@ private slots:
 
     void on_restart_clicked();
 
+    void on_horizontalSlider_sliderMoved(int position);
+
 private:
     Ui::MainWindow *ui;
     QString fileName;

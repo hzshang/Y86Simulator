@@ -39,6 +39,15 @@ void MainWindow::beginpipelineSlot(Y86 *y86)
     connect(this,SIGNAL(PipelineRun()),y86,SLOT(on_PipelineRun()));
     connect(this,SIGNAL(PipelineStep),y86,SLOT(on_PipelineStep()));
     connect(this,SIGNAL(PipelineStop),y86,SLOT(on_PipelineStop()));
+    connect(ui->horizontalSlider,SIGNAL(sliderMoved(int)),y86,SLOT(changeCircleTime(int)));
+    if(!y86->master)
+    {
+        ui->horizontalSlider->setEnabled(false);
+        ui->openFile->setEnabled(false);
+        ui->restart->setEnabled(false);
+        ui->next->setEnabled(false);
+        ui->run->setEnabled(false);
+    }
 }
 
 void MainWindow::openFile()
@@ -404,5 +413,5 @@ void MainWindow::on_run_clicked()
 void MainWindow::on_restart_clicked()
 {
     ui->run->setText("Run");
-    emit PilelineRestart();
+    emit PipelineRestart();
 }
