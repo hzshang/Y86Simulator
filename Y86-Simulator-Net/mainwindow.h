@@ -37,13 +37,13 @@ private slots:
 
     void on_run_clicked();
 
-    void on_stop_clicked();
+    //void on_stop_clicked();
 
     void on_next_clicked();
 
     void on_restart_clicked();
 
-    void on_horizontalSlider_sliderMoved(int position);
+    //void on_horizontalSlider_sliderMoved(int position);
 
 private:
     Ui::MainWindow *ui;

@@ -13,18 +13,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    Fetch* f;
-    Decode* d;
-    Execute* e;
-    Memory* m;
-    Writeback* w;
-    QObject::connect(this,SIGNAL(sendInstr(QString)),f,SLOT(receiveInstr(QString)));
-    QObject::connect(f,SIGNAL(sendFromFetch(QJsonObject)),this,SLOT(receiveFromFetch(QJsonObject)));
-    QObject::connect(d,SIGNAL(sendFromDecode(QJsonObject)),this,SLOT(receiveFromDecode(QJsonObject)));
-    QObject::connect(e,SIGNAL(sendFromExecute(QJsonObject)),this,SLOT(receiveFromExecute(QJsonObject)));
-    QObject::connect(e,SIGNAL(sendCC(int,int,int)),this,SLOT(receiveCC(int,int,int)));
-    QObject::connect(m,SIGNAL(sendFromMemory(QJsonObject)),this,SLOT(receiveFromMemory(QJsonObject)));
-    QObject::connect(w,SIGNAL(sendFromWriteback(QJsonObject)),this,SLOT(receiveFromWriteback(QJsonObject)));
+    Fetch f;
+    Decode d;
+    Execute e;
+    Memory m;
+    Writeback w;
+    QObject::connect(this,SIGNAL(sendInstr(QString)),&f,SLOT(receiveInstr(QString)));
+    QObject::connect(&f,SIGNAL(sendFromFetch(QJsonObject)),this,SLOT(receiveFromFetch(QJsonObject)));
+    QObject::connect(&d,SIGNAL(sendFromDecode(QJsonObject)),this,SLOT(receiveFromDecode(QJsonObject)));
+    QObject::connect(&e,SIGNAL(sendFromExecute(QJsonObject)),this,SLOT(receiveFromExecute(QJsonObject)));
+    QObject::connect(&e,SIGNAL(sendCC(int,int,int)),this,SLOT(receiveCC(int,int,int)));
+    QObject::connect(&m,SIGNAL(sendFromMemory(QJsonObject)),this,SLOT(receiveFromMemory(QJsonObject)));
+    QObject::connect(&w,SIGNAL(sendFromWriteback(QJsonObject)),this,SLOT(receiveFromWriteback(QJsonObject)));
 }
 
 MainWindow::~MainWindow()
@@ -133,8 +133,8 @@ void MainWindow::receiveFromFetch(QJsonObject rev)
     {
         setLine(ui->F_stat,"AOK");
 
-        ui->F_intruction->clear();
-        ui->F_intruction->setText(rev.value("instruction").toString());
+        ui->F_instruction->clear();
+        ui->F_instruction->setText(rev.value("instruction").toString());
 
         ui->PC->clear();
         if(rev.contains("PC"))
@@ -177,7 +177,7 @@ void MainWindow::receiveFromDecode(QJsonObject rev)
         setLine(ui->D_icode,str);
 
         str = rev.value("D_ifun").toString();
-        setLine(ui->D_func,str);
+        setLine(ui->D_ifun,str);
 
         str = rev.value("D_valP").toString();
         setLine(ui->D_valP,str);

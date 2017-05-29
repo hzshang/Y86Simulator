@@ -29,7 +29,7 @@ private slots:
     void on_clockIsOK();
     void on_stepIsDone();
     void begin();//开始流水线,仅对master有用
-    void pause();//暂停流水线，仅对master有用
+//  void pause();//暂停流水线，仅对master有用
     void initPipeline();//初始化流水线
     void f2d();
     void f2w();
