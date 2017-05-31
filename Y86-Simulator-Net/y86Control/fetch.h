@@ -1,7 +1,7 @@
 #ifndef FETCH_H
 #define FETCH_H
 #include "const.h"
-class Fetch:public QObject
+class Fetch:public QThread
 {
     Q_OBJECT
 public:
@@ -13,13 +13,15 @@ public:
     QTcpSocket *clientToWriteback;
     QTcpSocket *clientToClock;
     QTcpSocket *clientToExecute;
+    void run();
+    void move();
 private slots:
     void receiveInstr(QString);
     void dealExecuteData();
     void dealMemoryData();
     void dealWritebackData();
     void dealDecodeData();
-    void dealClockData();
+    void circleBegin();
 signals:
     void sendFromFetch(QJsonObject);
 private:

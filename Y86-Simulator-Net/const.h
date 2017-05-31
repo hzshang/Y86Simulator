@@ -13,6 +13,8 @@
 #include <QJsonArray>
 #include <QThread>
 #include <QMap>
+#include <QMutex>
+#include <QWaitCondition>
 
 #define Y86PORT 42313
 #define DECODE_FOR_FETCH_PORT 42317
@@ -26,7 +28,11 @@
 #define WRITEBACK_FOR_DECODE_PORT 42331
 #define WRITEBACK_FOR_MEMORY_PORT 42329
 
-#define CLOCK_PORT 42333
+#define CLOCK_FOR_FETCH 42335
+#define CLOCK_FOR_Decode 42337
+#define CLOCK_FOR_Execute 42339
+#define CLOCK_FOR_Memory 42341
+#define CLOCK_FOR_Writeabck 42343
 
 
 #endif // CONST_H

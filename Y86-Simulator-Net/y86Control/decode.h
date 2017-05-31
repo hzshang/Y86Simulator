@@ -1,12 +1,12 @@
 #ifndef DECODE_H
 #define DECODE_H
 #include "const.h"
-class Decode:public QObject
+class Decode:public QThread
 {
     Q_OBJECT
 public:
     explicit Decode();
-
+    void run();
     ~Decode();
     QTcpServer *serverForFetch;
     QTcpSocket *socketForFetch;
@@ -14,13 +14,14 @@ public:
     QTcpSocket *clientToMemory;
     QTcpSocket *clientToWriteback;
     QTcpSocket *clientToClock;
+    void move();
 private slots:
     void dealFetchConnection();
     void dealFetchData();
     void dealExecuteData();
     void dealMemoryData();
     void dealWritebackData();
-    void dealClockData();
+    void circleBegin();
 
 signals:
     void sendFromDecode(QJsonObject);

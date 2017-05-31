@@ -13,6 +13,21 @@ Fetch::~Fetch()
 
 }
 
+void Fetch::run()
+{
+
+    exec();
+}
+
+void Fetch::move()
+{
+    moveToThread(this);
+    clientToDecode->moveToThread(this);
+    clientToMemory->moveToThread(this);
+    clientToWriteback->moveToThread(this);
+    clientToClock->moveToThread(this);
+    clientToExecute->moveToThread(this);
+}
 void Fetch::init()
 {
     clientToDecode=NULL;
@@ -132,6 +147,38 @@ void Fetch::dealDecodeData()
         d_srcB = -1;
 }
 
+void Fetch::circleBegin()
+{
+    qWarning()<<"fetch Circle";
+    clientToClock->write("done");
+    clientToClock->waitForBytesWritten();
+//    QString str=QString(clientToClock->readAll());
+//    if(str=="nextStep")
+//    {
+//        //有可能相互阻碍
+//        clientToWriteback->waitForReadyRead();
+//        clientToMemory->waitForReadyRead();
+//        clientToExecute->waitForReadyRead();
+//        clientToDecode->waitForReadyRead();
+//        select_PC();
+//        fetch();
+//        getInstruction();
+//        emit sendFromFetch(dataToMainWindow());
+//        predict_PC();
+//        sendToDecode(DataToDecode());
+//        //执行该时钟周期
+//    }else if(str=="restart")
+//    {
+//        PC = 0;
+//        f_stat = -1;
+//        instrString = "";
+//        isRet = false;
+//        isRisk = false;
+//        E_icode = -1;
+//        M_icode = -1;
+//        W_icode = -1;
+//    }
+}
 void Fetch::receiveInstr(QString str)
 {
     instruction = str;
@@ -449,33 +496,6 @@ QJsonObject Fetch::dataToMainWindow()
         sendData.insert("predPC", predPC);
         sendData.insert("instruction",instrString);
     }
+    return sendData;
 }
-void Fetch::dealClockData()
-{
-    QString str=QString(clientToClock->readAll());
-    if(str=="nextStep")
-    {
-        //有可能相互阻碍
-        clientToWriteback->waitForReadyRead();
-        clientToMemory->waitForReadyRead();
-        clientToExecute->waitForReadyRead();
-        clientToDecode->waitForReadyRead();
-        select_PC();
-        fetch();
-        getInstruction();
-        emit sendFromFetch(dataToMainWindow());
-        predict_PC();
-        sendToDecode(DataToDecode());
-        //执行该时钟周期
-    }else if(str=="restart")
-    {
-        PC = 0;
-        f_stat = -1;
-        instrString = "";
-        isRet = false;
-        isRisk = false;
-        E_icode = -1;
-        M_icode = -1;
-        W_icode = -1;
-    }
-}
+

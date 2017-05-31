@@ -37,8 +37,8 @@ void MainWindow::beginpipelineSlot(Y86 *y86)
     this->show();
     connect(this,SIGNAL(PipelineRestart()),y86,SLOT(on_PipelineRestart()));
     connect(this,SIGNAL(PipelineRun()),y86,SLOT(on_PipelineRun()));
-    connect(this,SIGNAL(PipelineStep),y86,SLOT(on_PipelineStep()));
-    connect(this,SIGNAL(PipelineStop),y86,SLOT(on_PipelineStop()));
+    connect(this,SIGNAL(PipelineStep()),y86,SLOT(on_PipelineStep()));
+    connect(this,SIGNAL(PipelineStop()),y86,SLOT(on_PipelineStop()));
     connect(ui->horizontalSlider,SIGNAL(sliderMoved(int)),y86,SLOT(changeCircleTime(int)));
     if(!y86->master)
     {

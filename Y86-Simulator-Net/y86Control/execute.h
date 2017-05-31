@@ -1,13 +1,14 @@
 #ifndef EXECUTE_H
 #define EXECUTE_H
 #include "const.h"
-class Execute:public QObject
+class Execute:public QThread
 {
     Q_OBJECT
 public:
     explicit Execute();
-
+    void run();
     ~Execute();
+    void move();
     QTcpServer *serverForDecode;
     QTcpServer *serverForFetch;
     QTcpSocket *socketForDecode;
@@ -18,7 +19,7 @@ private slots:
     void dealDecodeConnection();
     void dealFetchConnection();
     void dealDecodeData();
-    void dealClockData();
+    void circleBegin();
 
 signals:
     void sendFromExecute(QJsonObject);

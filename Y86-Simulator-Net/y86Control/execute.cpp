@@ -5,6 +5,11 @@ Execute::Execute()
     init();
 }
 
+void Execute::run()
+{
+    exec();
+}
+
 void Execute::init()
 {
     socketForDecode=NULL;
@@ -14,12 +19,24 @@ void Execute::init()
     serverForDecode->listen(QHostAddress::Any,EXECUTE_FOR_DECODE_PORT);
     connect(serverForDecode,SIGNAL(newConnection()),this,SLOT(dealDecodeConnection()));
     serverForFetch=new QTcpServer();
+    serverForFetch->listen(QHostAddress::Any,EXECUTE_FOR_FETCH_PORT);
     connect(serverForFetch,SIGNAL(newConnection()),this,SLOT(dealFetchConnection()));
 }
 
 Execute::~Execute()
 {
     delete serverForDecode;
+}
+
+void Execute::move()
+{
+    moveToThread(this);
+    serverForDecode->moveToThread(this);
+    serverForFetch->moveToThread(this);
+    socketForDecode->moveToThread(this);
+    socketForFetch->moveToThread(this);//??????
+    clientToMemory->moveToThread(this);
+    clientToClock->moveToThread(this);
 }
 void Execute::dealDecodeConnection()
 {
@@ -31,7 +48,6 @@ void Execute::dealDecodeConnection()
 void Execute::dealFetchConnection()
 {
     socketForFetch=serverForFetch->nextPendingConnection();
-//    connect(socketForFetch,SIGNAL(readyRead()),this,SLOT(dealFetchData()));
     serverForFetch->pauseAccepting();
 }
 
@@ -197,6 +213,26 @@ void Execute::dealDecodeData()
         E_srcA = json.value("E_srcA").toInt();
     if(json.contains("E_srcB"))
         E_srcB = json.value("E_srcB").toInt();
+}
+
+void Execute::circleBegin()
+{
+    qWarning()<<"execute Circle";
+    clientToClock->write("done");
+    clientToClock->waitForBytesWritten();
+//    QString str=QString(clientToClock->readAll());
+//    if(str=="nextStep")
+//    {
+//        execute();
+//        emit sendCC(ZF,SF,OF);
+//        sendToMemory(dataToMemory());
+//        sendToDecode(dataToDecode());
+//        sendToFetch(dataToFetch());
+//        //执行该时钟周期
+//    }else if(str=="restart")
+//    {
+//        E_stat = -1;
+//    }
 }
 
 //预处理aluA的值
@@ -378,19 +414,3 @@ void Execute::execute()
     }
 }
 
-void Execute::dealClockData()
-{
-    QString str=QString(clientToClock->readAll());
-    if(str=="nextStep")
-    {
-        execute();
-        emit sendCC(ZF,SF,OF);
-        sendToMemory(dataToMemory());
-        sendToDecode(dataToDecode());
-        sendToFetch(dataToFetch());
-        //执行该时钟周期
-    }else if(str=="restart")
-    {
-        E_stat = -1;
-    }
-}

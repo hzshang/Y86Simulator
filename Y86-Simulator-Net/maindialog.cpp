@@ -77,7 +77,7 @@ void MainDialog::on_connectButton_clicked()
     }
 }
 
-void MainDialog::on_showPipeline(Y86 *y86)
+ void MainDialog::on_showPipeline(Y86 *y86)
 {
     this->close();
 }

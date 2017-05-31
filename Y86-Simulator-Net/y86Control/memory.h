@@ -1,13 +1,13 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 #include "const.h"
-class Memory:public QObject
+class Memory:public QThread
 {
     Q_OBJECT
 public:
     explicit Memory();
     ~Memory();
-
+    void move();
     void ready();
     QTcpServer *serverForExecute;
     QTcpServer *serverForDecode;
@@ -18,13 +18,13 @@ public:
     QTcpSocket *socketForFetch;
     QTcpSocket *clientToWriteback;
     QTcpSocket *clientToClock;
+    void run();
 private slots:
     void dealExecuteConnection();
     void dealDecodeConnection();
     void dealFetchConnection();
     void dealExecuteData();
-    void dealClockData();
-    //void dealDecodeData();
+    void circleBegin();
 
 signals:
     void sendFromMemory(QJsonObject);

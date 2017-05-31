@@ -8,6 +8,11 @@ Decode::Decode()
     init();
 }
 
+void Decode::run()
+{
+    exec();
+}
+
 void Decode::init()
 {
     socketForFetch=NULL;
@@ -24,6 +29,17 @@ Decode::~Decode()
 {
     delete serverForFetch;
 
+}
+
+void Decode::move()
+{
+    moveToThread(this);
+    serverForFetch->moveToThread(this);
+    socketForFetch->moveToThread(this);
+    clientToExecute->moveToThread(this);
+    clientToMemory->moveToThread(this);
+    clientToWriteback->moveToThread(this);
+    clientToClock->moveToThread(this);
 }
 
 //生成传递给Execute阶段的数据
@@ -239,6 +255,35 @@ void Decode::dealWritebackData()
         W_dstE = -1;
 }
 
+void Decode::circleBegin()
+{
+    qWarning()<<"decode Circle";
+    clientToClock->write("done");
+    clientToClock->waitForBytesWritten();
+//    QString str=QString(clientToClock->readAll());
+//    if(str=="nextStep")
+//    {
+//        clientToWriteback->waitForReadyRead();
+//        clientToMemory->waitForReadyRead();
+//        clientToExecute->waitForReadyRead();
+//        decode();
+//        sel_fwd_valA();
+//        fwd_valB();
+//        sendToExecute(dataToExecute());
+//        sendToFetch(dataToFetch());
+//        //执行该时钟周期
+//    }else if(str=="restart")
+//    {
+//        D_stat = -1;
+//        isRisk = false;
+//        E_icode = -1;
+//        M_dstE = -1;
+//        M_dstM = -1;
+//        W_dstE = -1;
+//        W_dstM = -1;
+//    }
+}
+
 //读取寄存器的值
 int Decode::getRegValue(int src)
 {
@@ -412,29 +457,3 @@ void Decode::fwd_valB()
     }
 }
 
-
-void Decode::dealClockData()
-{
-    QString str=QString(clientToClock->readAll());
-    if(str=="nextStep")
-    {
-        clientToWriteback->waitForReadyRead();
-        clientToMemory->waitForReadyRead();
-        clientToExecute->waitForReadyRead();
-        decode();
-        sel_fwd_valA();
-        fwd_valB();
-        sendToExecute(dataToExecute());
-        sendToFetch(dataToFetch());
-        //执行该时钟周期
-    }else if(str=="restart")
-    {
-        D_stat = -1;
-        isRisk = false;
-        E_icode = -1;
-        M_dstE = -1;
-        M_dstM = -1;
-        W_dstE = -1;
-        W_dstM = -1;
-    }
-}

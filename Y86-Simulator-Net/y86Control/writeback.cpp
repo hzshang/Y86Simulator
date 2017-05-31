@@ -13,16 +13,34 @@ Writeback::~Writeback()
     delete serverForDecode;
     delete serverForMemory;
 }
+
+void Writeback::move()
+{
+    moveToThread(this);
+    serverForFetch->moveToThread(this);
+    socketForFetch->moveToThread(this);
+
+    serverForDecode->moveToThread(this);
+    socketForDecode->moveToThread(this);
+
+    serverForMemory->moveToThread(this);
+    socketForMemory->moveToThread(this);
+    clientToClock->moveToThread(this);
+}
+
+void Writeback::run()
+{
+    exec();
+}
 void Writeback::dealDecodeConnection()
 {
     socketForDecode=serverForDecode->nextPendingConnection();
-    connect(socketForDecode,SIGNAL(readyRead()),this,SLOT(dealDecodeData()));
+//    connect(socketForDecode,SIGNAL(readyRead()),this,SLOT(dealDecodeData()));
     serverForDecode->pauseAccepting();
 }
 void Writeback::dealFetchConnection()
 {
     socketForFetch=serverForFetch->nextPendingConnection();
-    connect(socketForFetch,SIGNAL(readyRead()),this,SLOT(dealFetchData()));
     serverForFetch->pauseAccepting();
 }
 
@@ -147,6 +165,26 @@ void Writeback::dealMemoryData()
         W_dstM = json.value("W_dstM").toInt();
 }
 
+void Writeback::circleBegin()
+{
+    qWarning()<<"writeback Circle";
+    clientToClock->write("done");
+    clientToClock->waitForBytesWritten();
+
+//    QString str=QString(clientToClock->readAll());
+//    if(str=="nextStep")
+//    {
+//        writeback();
+//        sendToDecode(dataToDecode());
+//        sendToFetch(dataToFetch());
+//        //反馈给时钟
+//        //执行该时钟周期
+//    }else if(str=="restart")
+//    {
+//        W_stat = -1;
+//    }
+}
+
 //给寄存器写回相应的值
 void Writeback::writeReg(int dst, int val)
 {
@@ -214,20 +252,5 @@ void Writeback::writeback()
         break;
     default:
         break;
-    }
-}
-void Writeback::dealClockData()
-{
-    QString str=QString(clientToClock->readAll());
-    if(str=="nextStep")
-    {
-        writeback();
-        sendToDecode(dataToDecode());
-        sendToFetch(dataToFetch());
-        //反馈给时钟
-        //执行该时钟周期
-    }else if(str=="restart")
-    {
-        W_stat = -1;
     }
 }

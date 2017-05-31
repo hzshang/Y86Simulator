@@ -1,12 +1,13 @@
 #ifndef WRITEBACK_H
 #define WRITEBACK_H
 #include "const.h"
-class Writeback:public QObject
+class Writeback:public QThread
 {
     Q_OBJECT
 public:
     explicit Writeback();
     ~Writeback();
+    void move();
     QTcpServer *serverForFetch;
     QTcpSocket *socketForFetch;
 
@@ -22,7 +23,7 @@ private slots:
     void dealDecodeConnection();
     void dealMemoryConnection();
     void dealMemoryData();
-    void dealClockData();
+    void circleBegin();
 signals:
     void sendFromWriteback(QJsonObject);
 private:

@@ -1,6 +1,6 @@
 #include "y86.h"
 #include <QMetaType>
-Y86::Y86(QObject *parent)
+Y86::Y86()
 {
     qRegisterMetaType<QHostAddress>("QHostAddress");
     listen=new QUdpSocket();
@@ -17,10 +17,10 @@ void Y86::ready(bool FLevel, bool DLevel, bool ELevel, bool MLevel, bool WLevel)
     {
         fetch=new Fetch();
         master=true;
-        clock=new Clock();
+        clock=new Clock(&awake);
         clock->ready();
         connect(clock,SIGNAL(clockIsOK()),this,SLOT(on_clockIsOK()));
-        connect(clock,SIGNAL(stepIsDone()),this,SLOT(on_stepIsDone()));
+        connect(this,SIGNAL(nextStep()),clock,SLOT(nextStep()));
     }
     if(DLevel)
         decode=new Decode();
@@ -50,7 +50,6 @@ void Y86::readFromlisten()
 void Y86::broadData(QJsonObject &data)
 {
     QByteArray bytes=QJsonDocument(data).toBinaryData();
-    qWarning()<<"send"<<data;
     broadcast->writeDatagram(bytes,bytes.size(),QHostAddress::Broadcast,Y86PORT);
 }
 //处理收到的信息
@@ -82,11 +81,6 @@ void Y86::on_clockIsOK()
     }
 }
 
-void Y86::on_stepIsDone()
-{
-    stepIsDone=true;
-}
-
 void Y86::initPipeline()
 {
 
@@ -94,8 +88,37 @@ void Y86::initPipeline()
 
 void Y86::beginPipeLine()
 {
-    qWarning()<<"Begin";
     stopBroadcast=true;
+    listen->readAll();
+    listen->close();
+    //分出5个线程
+    if(fetch)
+    {
+        clock->move();
+        clock->start();
+        fetch->move();
+        fetch->start();
+    }
+    if(decode)
+    {
+        decode->move();
+        decode->start();
+    }
+    if(execute)
+    {
+        execute->move();
+        execute->start();
+    }
+    if(memory)
+    {
+        memory->move();
+        memory->start();
+    }
+    if(writeback)
+    {
+        writeback->move();
+        writeback->start();
+    }
     emit showPipeLine(this);
 }
 void Y86::beignConnect(QJsonObject json,QHostAddress address)
@@ -105,61 +128,61 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
         if(fetch && !fetch->clientToClock)
         {
             fetch->clientToClock=new QTcpSocket();
-            fetch->clientToClock->connectToHost(address,CLOCK_PORT);
+            fetch->clientToClock->connectToHost(address,CLOCK_FOR_FETCH);
             if(!fetch->clientToClock->waitForConnected())
             {
                 delete fetch->clientToClock;
                 fetch->clientToClock=NULL;
             }else{
-                connect(fetch->clientToClock,SIGNAL(readyRead()),fetch,SLOT(dealClockData()));
+                connect(fetch->clientToClock,SIGNAL(readyRead()),fetch,SLOT(circleBegin()),Qt::QueuedConnection);
             }
         }
         if(decode&& !decode->clientToClock)
         {
             decode->clientToClock=new QTcpSocket();
-            decode->clientToClock->connectToHost(address,CLOCK_PORT);
+            decode->clientToClock->connectToHost(address,CLOCK_FOR_Decode);
             if(!decode->clientToClock->waitForConnected())
             {
                 delete decode->clientToClock;
                 decode->clientToClock=NULL;
             }else{
-                connect(decode->clientToClock,SIGNAL(readyRead()),decode,SLOT(dealClockData()));
+                connect(decode->clientToClock,SIGNAL(readyRead()),decode,SLOT(circleBegin()),Qt::QueuedConnection);
             }
         }
         if(execute&& !execute->clientToClock)
          {
             execute->clientToClock=new QTcpSocket();
-            execute->clientToClock->connectToHost(address,CLOCK_PORT);
+            execute->clientToClock->connectToHost(address,CLOCK_FOR_Execute);
             if(!execute->clientToClock->waitForConnected())
             {
                 delete execute->clientToClock;
                 execute->clientToClock=NULL;
             }else{
-                connect(execute->clientToClock,SIGNAL(readyRead()),execute,SLOT(dealClockData()));
+                connect(execute->clientToClock,SIGNAL(readyRead()),execute,SLOT(circleBegin()),Qt::QueuedConnection);
             }
         }
         if(memory&& !memory->clientToClock)
         {
             memory->clientToClock=new QTcpSocket();
-            memory->clientToClock->connectToHost(address,CLOCK_PORT);
+            memory->clientToClock->connectToHost(address,CLOCK_FOR_Memory);
             if(!memory->clientToClock->waitForConnected())
             {
                 delete memory->clientToClock;
                 memory->clientToClock=NULL;
             }else{
-                connect(memory->clientToClock,SIGNAL(readyRead()),memory,SLOT(dealClockData()));
+                connect(memory->clientToClock,SIGNAL(readyRead()),memory,SLOT(circleBegin()),Qt::QueuedConnection);
             }
         }
         if(writeback&& !writeback->clientToClock)
         {
             writeback->clientToClock=new QTcpSocket();
-            writeback->clientToClock->connectToHost(address,CLOCK_PORT);
+            writeback->clientToClock->connectToHost(address,CLOCK_FOR_Writeabck);
             if(!writeback->clientToClock->waitForConnected())
             {
                 delete writeback->clientToClock;
                 writeback->clientToClock=NULL;
             }else{
-                connect(writeback->clientToClock,SIGNAL(readyRead()),writeback,SLOT(dealClockData()));
+                connect(writeback->clientToClock,SIGNAL(readyRead()),writeback,SLOT(circleBegin()),Qt::QueuedConnection);
             }
         }
     }
@@ -335,7 +358,6 @@ void Y86:: m2w()//0
 {
     pool=pool|0x01;
 }
-
 void Y86::f2e()//8
 {
     pool=pool|0x100;
@@ -369,19 +391,19 @@ void Y86::changeCircleTime(int value)
 
 void Y86::begin()
 {
+    qWarning()<<"y86"<<QThread::currentThreadId();
     while(runState!=0)
     {
-        stepIsDone=false;
         if(runState==4)
         {
             clock->restartPipeline();
             runState=0;
             break;
         }
-        clock->nextStep();
-        int temp;
-        while(!stepIsDone)//循环等待stepISDone变为true
-            temp=0;
+        emit nextStep();
+        mutex.lock();
+        awake.wait(&mutex);
+        mutex.unlock();
         usleep(circleTime*1000);
         if(runState==2)
             runState=0;
@@ -422,7 +444,5 @@ void Y86::run()
         broadData(temp);
         sleep(2);
     }
-    qWarning()<<"NO BROAD!";
     disconnect(listen,SIGNAL(readyRead()),this,SLOT(readFromlisten()));
-    quit();
 }

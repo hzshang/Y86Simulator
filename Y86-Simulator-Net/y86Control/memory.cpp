@@ -12,6 +12,24 @@ Memory::~Memory()
     delete serverForFetch;
 }
 
+void Memory::move()
+{
+    moveToThread(this);
+    serverForExecute->moveToThread(this);
+    serverForDecode->moveToThread(this);
+    serverForFetch->moveToThread(this);
+    socketForExecute->moveToThread(this);
+    socketForDecode->moveToThread(this);
+    socketForFetch->moveToThread(this);
+    clientToWriteback->moveToThread(this);
+    clientToClock->moveToThread(this);
+}
+
+void Memory::run()
+{
+    exec();
+}
+
 void Memory:: dealExecuteConnection()
 {
     socketForExecute=serverForExecute->nextPendingConnection();
@@ -22,14 +40,12 @@ void Memory:: dealExecuteConnection()
 void  Memory::dealDecodeConnection()
 {
     socketForDecode=serverForDecode->nextPendingConnection();
-    connect(socketForDecode,SIGNAL(readyRead()),this,SLOT(dealDecodeData()));
     serverForDecode->pauseAccepting();
 }
 
 void  Memory:: dealFetchConnection()
 {
     socketForFetch=serverForFetch->nextPendingConnection();
-    connect(socketForFetch,SIGNAL(readyRead()),this,SLOT(dealFetchData()));
     serverForFetch->pauseAccepting();
 }
 
@@ -215,6 +231,25 @@ void  Memory::dealExecuteData()
     if(json.contains("M_dstM"))
         M_dstM = json.value("M_dstM").toInt();
 }
+
+void Memory::circleBegin()
+{
+    qWarning()<<"memory Circle";
+    clientToClock->write("done");
+    clientToClock->waitForBytesWritten();
+//    QString str=QString(clientToClock->readAll());
+//    if(str=="nextStep")
+//    {
+//        memory();
+//        sendToDecode(dataToDecode());
+//        sendToFetch(dataToFetch());
+//        sendToWriteback(dataToWriteback());
+//        //执行该时钟周期
+//    }else if(str=="restart")
+//    {
+//        M_stat = -1;
+//    }
+}
 void Memory::memory()
 {
     m_stat = M_stat;
@@ -274,18 +309,4 @@ void Memory::memory()
 
 }
 
-void Memory::dealClockData()
-{
-    QString str=QString(clientToClock->readAll());
-    if(str=="nextStep")
-    {
-        memory();
-        sendToDecode(dataToDecode());
-        sendToFetch(dataToFetch());
-        sendToWriteback(dataToWriteback());
-        //执行该时钟周期
-    }else if(str=="restart")
-    {
-        M_stat = -1;
-    }
-}
+
