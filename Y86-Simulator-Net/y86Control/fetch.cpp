@@ -150,34 +150,36 @@ void Fetch::dealDecodeData()
 void Fetch::circleBegin()
 {
     qWarning()<<"fetch Circle";
+    //每个周期要做的操作
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        //有可能相互阻碍
+        clientToWriteback->waitForReadyRead();
+        clientToMemory->waitForReadyRead();
+        clientToExecute->waitForReadyRead();
+        clientToDecode->waitForReadyRead();
+        select_PC();
+        fetch();
+        getInstruction();
+        emit sendFromFetch(dataToMainWindow());
+        predict_PC();
+        sendToDecode(DataToDecode());
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        PC = 0;
+        f_stat = -1;
+        instrString = "";
+        isRet = false;
+        isRisk = false;
+        E_icode = -1;
+        M_icode = -1;
+        W_icode = -1;
+    }
     clientToClock->write("done");
     clientToClock->waitForBytesWritten();
-//    QString str=QString(clientToClock->readAll());
-//    if(str=="nextStep")
-//    {
-//        //有可能相互阻碍
-//        clientToWriteback->waitForReadyRead();
-//        clientToMemory->waitForReadyRead();
-//        clientToExecute->waitForReadyRead();
-//        clientToDecode->waitForReadyRead();
-//        select_PC();
-//        fetch();
-//        getInstruction();
-//        emit sendFromFetch(dataToMainWindow());
-//        predict_PC();
-//        sendToDecode(DataToDecode());
-//        //执行该时钟周期
-//    }else if(str=="restart")
-//    {
-//        PC = 0;
-//        f_stat = -1;
-//        instrString = "";
-//        isRet = false;
-//        isRisk = false;
-//        E_icode = -1;
-//        M_icode = -1;
-//        W_icode = -1;
-//    }
+
 }
 void Fetch::receiveInstr(QString str)
 {

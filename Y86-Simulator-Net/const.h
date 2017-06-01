@@ -15,6 +15,8 @@
 #include <QMap>
 #include <QMutex>
 #include <QWaitCondition>
+#include <QFuture>
+#include <QtConcurrent>
 
 #define Y86PORT 42313
 #define DECODE_FOR_FETCH_PORT 42317

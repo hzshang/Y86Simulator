@@ -30,7 +30,7 @@ void Y86::ready(bool FLevel, bool DLevel, bool ELevel, bool MLevel, bool WLevel)
         memory=new Memory();
     if(WLevel)
         writeback=new Writeback();
-    start();
+    newThreadBroad();
 }
 
 //Y86广播收到信号
@@ -282,9 +282,9 @@ void Y86::beignConnect(QJsonObject json,QHostAddress address)
             {
                 delete fetch->clientToWriteback;
                 fetch->clientToWriteback=NULL;
+            }else{
+                connect(fetch->clientToWriteback,SIGNAL(readyRead()),fetch,SLOT(dealWritebackData()));
             }
-        }else{
-            connect(fetch->clientToWriteback,SIGNAL(readyRead()),fetch,SLOT(dealWritebackData()));
         }
         if(decode && !decode->clientToWriteback)
         {
@@ -366,7 +366,7 @@ void Y86::f2e()//8
 void Y86::on_PipelineRun()
 {
     runState=1;
-    begin();
+    start();
 }
 
 void Y86::on_PipelineStop()
@@ -376,7 +376,13 @@ void Y86::on_PipelineStop()
 
 void Y86::on_PipelineStep()
 {
-    runState=2;
+    if(runState==0)
+    {
+        runState=2;
+        run();
+    }else{
+        runState=0;
+    }
 }
 
 void Y86::on_PipelineRestart()
@@ -388,26 +394,29 @@ void Y86::changeCircleTime(int value)
 {
     circleTime=value;
 }
-
-void Y86::begin()
+void broadPool(Y86* y86)
 {
-    qWarning()<<"y86"<<QThread::currentThreadId();
-    while(runState!=0)
+    QJsonObject json;
+    QUdpSocket broad;
+    json.insert("id",1);
+    json.insert("FLevel",y86->fetch!=NULL);
+    json.insert("DLevel",y86->decode!=NULL);
+    json.insert("ELevel",y86->execute!=NULL);
+    json.insert("MLevel",y86->memory!=NULL);
+    json.insert("WLevel",y86->writeback!=NULL);
+    while(!y86->stopBroadcast)
     {
-        if(runState==4)
-        {
-            clock->restartPipeline();
-            runState=0;
-            break;
-        }
-        emit nextStep();
-        mutex.lock();
-        awake.wait(&mutex);
-        mutex.unlock();
-        usleep(circleTime*1000);
-        if(runState==2)
-            runState=0;
+        QJsonObject temp=json;
+        temp.insert("pool",y86->pool);
+        QByteArray bytes=QJsonDocument(temp).toBinaryData();
+        broad.writeDatagram(bytes,bytes.size(),QHostAddress::Broadcast,Y86PORT);
+        QThread::sleep(2);
     }
+}
+
+void Y86::newThreadBroad()
+{
+    QtConcurrent::run(broadPool,this);
 }
 void Y86::init()
 {
@@ -430,19 +439,21 @@ void Y86::init()
 
 void Y86::run()
 {
-    QJsonObject json;
-    json.insert("id",1);
-    json.insert("FLevel",fetch!=NULL);
-    json.insert("DLevel",decode!=NULL);
-    json.insert("ELevel",execute!=NULL);
-    json.insert("MLevel",memory!=NULL);
-    json.insert("WLevel",writeback!=NULL);
-    while(!stopBroadcast)
+    while(runState!=0)
     {
-        QJsonObject temp=json;
-        temp.insert("pool",pool);
-        broadData(temp);
-        sleep(2);
+        qWarning()<<"y86"<<QThread::currentThreadId();
+        if(runState==4)
+        {
+            clock->restartPipeline();
+            runState=0;
+            break;
+        }
+        emit nextStep();
+        mutex.lock();
+        awake.wait(&mutex);
+        mutex.unlock();
+        msleep(circleTime);
+        if(runState==2)
+            runState=0;
     }
-    disconnect(listen,SIGNAL(readyRead()),this,SLOT(readFromlisten()));
 }

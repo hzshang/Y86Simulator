@@ -26,7 +26,6 @@ void Clock::ready()
 
 void Clock::nextStep()
 {
-    qWarning()<<"NextStep"<<QThread::currentThreadId();
     for(int i=4;i>=0;i--)
     {
         socket[i]->write("nextStep");

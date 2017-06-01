@@ -218,21 +218,22 @@ void Execute::dealDecodeData()
 void Execute::circleBegin()
 {
     qWarning()<<"execute Circle";
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        execute();
+        emit sendCC(ZF,SF,OF);
+        sendToMemory(dataToMemory());
+        sendToDecode(dataToDecode());
+        sendToFetch(dataToFetch());
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        E_stat = -1;
+    }
     clientToClock->write("done");
     clientToClock->waitForBytesWritten();
-//    QString str=QString(clientToClock->readAll());
-//    if(str=="nextStep")
-//    {
-//        execute();
-//        emit sendCC(ZF,SF,OF);
-//        sendToMemory(dataToMemory());
-//        sendToDecode(dataToDecode());
-//        sendToFetch(dataToFetch());
-//        //执行该时钟周期
-//    }else if(str=="restart")
-//    {
-//        E_stat = -1;
-//    }
+
 }
 
 //预处理aluA的值

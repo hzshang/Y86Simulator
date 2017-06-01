@@ -13,18 +13,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    Fetch f;
-    Decode d;
-    Execute e;
-    Memory m;
-    Writeback w;
-    QObject::connect(this,SIGNAL(sendInstr(QString)),&f,SLOT(receiveInstr(QString)));
-    QObject::connect(&f,SIGNAL(sendFromFetch(QJsonObject)),this,SLOT(receiveFromFetch(QJsonObject)));
-    QObject::connect(&d,SIGNAL(sendFromDecode(QJsonObject)),this,SLOT(receiveFromDecode(QJsonObject)));
-    QObject::connect(&e,SIGNAL(sendFromExecute(QJsonObject)),this,SLOT(receiveFromExecute(QJsonObject)));
-    QObject::connect(&e,SIGNAL(sendCC(int,int,int)),this,SLOT(receiveCC(int,int,int)));
-    QObject::connect(&m,SIGNAL(sendFromMemory(QJsonObject)),this,SLOT(receiveFromMemory(QJsonObject)));
-    QObject::connect(&w,SIGNAL(sendFromWriteback(QJsonObject)),this,SLOT(receiveFromWriteback(QJsonObject)));
 }
 
 MainWindow::~MainWindow()
@@ -34,12 +22,35 @@ MainWindow::~MainWindow()
 
 void MainWindow::beginpipelineSlot(Y86 *y86)
 {
+    qWarning()<<"MainWindow"<<QThread::currentThreadId();
     this->show();
-    connect(this,SIGNAL(PipelineRestart()),y86,SLOT(on_PipelineRestart()));
-    connect(this,SIGNAL(PipelineRun()),y86,SLOT(on_PipelineRun()));
-    connect(this,SIGNAL(PipelineStep()),y86,SLOT(on_PipelineStep()));
-    connect(this,SIGNAL(PipelineStop()),y86,SLOT(on_PipelineStop()));
-    connect(ui->horizontalSlider,SIGNAL(sliderMoved(int)),y86,SLOT(changeCircleTime(int)));
+    wy86=y86;
+    connect(this,SIGNAL(PipelineRestart()),wy86,SLOT(on_PipelineRestart()));
+    connect(this,SIGNAL(PipelineRun()),wy86,SLOT(on_PipelineRun()));
+    connect(this,SIGNAL(PipelineStep()),wy86,SLOT(on_PipelineStep()));
+    connect(this,SIGNAL(PipelineStop()),wy86,SLOT(on_PipelineStop()));
+    connect(ui->horizontalSlider,SIGNAL(sliderMoved(int)),wy86,SLOT(changeCircleTime(int)));
+
+    if(wy86->fetch)
+    {
+        QObject::connect(this,SIGNAL(sendInstr(QString)),wy86->fetch,SLOT(receiveInstr(QString)));
+        QObject::connect(wy86->fetch,SIGNAL(sendFromFetch(QJsonObject)),this,SLOT(receiveFromFetch(QJsonObject)));
+    }
+    if(wy86->decode)
+        QObject::connect(wy86->decode,SIGNAL(sendFromDecode(QJsonObject)),this,SLOT(receiveFromDecode(QJsonObject)));
+    if(wy86->execute)
+    {
+        QObject::connect(wy86->execute,SIGNAL(sendCC(int,int,int)),this,SLOT(receiveCC(int,int,int)));
+        QObject::connect(wy86->execute,SIGNAL(sendFromExecute(QJsonObject)),this,SLOT(receiveFromExecute(QJsonObject)));
+    }
+    if(wy86->memory)
+    {
+        QObject::connect(wy86->memory,SIGNAL(sendFromMemory(QJsonObject)),this,SLOT(receiveFromMemory(QJsonObject)));
+    }
+    if(wy86->writeback)
+    {
+        QObject::connect(wy86->writeback,SIGNAL(sendFromWriteback(QJsonObject)),this,SLOT(receiveFromWriteback(QJsonObject)));
+    }
     if(!y86->master)
     {
         ui->horizontalSlider->setEnabled(false);

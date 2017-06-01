@@ -168,21 +168,21 @@ void Writeback::dealMemoryData()
 void Writeback::circleBegin()
 {
     qWarning()<<"writeback Circle";
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        writeback();
+        sendToDecode(dataToDecode());
+        sendToFetch(dataToFetch());
+        //反馈给时钟
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        W_stat = -1;
+    }
     clientToClock->write("done");
     clientToClock->waitForBytesWritten();
 
-//    QString str=QString(clientToClock->readAll());
-//    if(str=="nextStep")
-//    {
-//        writeback();
-//        sendToDecode(dataToDecode());
-//        sendToFetch(dataToFetch());
-//        //反馈给时钟
-//        //执行该时钟周期
-//    }else if(str=="restart")
-//    {
-//        W_stat = -1;
-//    }
 }
 
 //给寄存器写回相应的值

@@ -15,8 +15,15 @@ public:
     void broadData(QJsonObject &data);
     float sleepTime;
     bool master;//如果含有F，则设为true
+    Fetch *fetch;
+    Decode *decode;
+    Execute *execute;
+    Memory *memory;
+    Writeback *writeback;
+    volatile bool stopBroadcast;
+    volatile int pool;
 protected:
-    void run();
+    void run();//开始传输数据
 
 signals:
     void on_dealData(QJsonObject,QHostAddress);
@@ -28,7 +35,6 @@ private slots:
     void readFromlisten();
     void dealData(QJsonObject,QHostAddress);
     void on_clockIsOK();
-    void begin();//开始流水线,仅对master有用
     void initPipeline();//初始化流水线
     void f2d();
     void f2w();
@@ -45,11 +51,7 @@ private slots:
     void on_PipelineRestart();
     void changeCircleTime(int);
 private:
-    Fetch *fetch;
-    Decode *decode;
-    Execute *execute;
-    Memory *memory;
-    Writeback *writeback;
+
     QUdpSocket *listen;
     QUdpSocket *broadcast;
     Clock *clock;
@@ -57,10 +59,9 @@ private:
     QWaitCondition awake;
     int circleTime;//周期时间，单位ms
     volatile int runState;//运行状态  running 1,step 2,pause 0 ,4 restart 仅对master有效
-    volatile bool stopBroadcast;
-    volatile int pool;
-    bool clockIsOk;//连接阶段，如果五个阶段都连上了clock，则设为true  仅对master有效
 
+    bool clockIsOk;//连接阶段，如果五个阶段都连上了clock，则设为true  仅对master有效
+    void newThreadBroad();
     void init();
     void beginPipeLine();
     void beignConnect(QJsonObject,QHostAddress);

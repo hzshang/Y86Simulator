@@ -11,14 +11,14 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>y86-Simulator-Net</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QLabel" name="label_51">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>270</y>
+      <y>230</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -153,10 +153,10 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>500</x>
-      <y>10</y>
+      <x>480</x>
+      <y>11</y>
       <width>71</width>
-      <height>197</height>
+      <height>190</height>
      </rect>
     </property>
     <property name="font">
@@ -266,8 +266,8 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>580</x>
-      <y>10</y>
+      <x>570</x>
+      <y>13</y>
       <width>81</width>
       <height>512</height>
      </rect>
@@ -507,7 +507,7 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>340</x>
       <y>620</y>
       <width>260</width>
       <height>32</height>
@@ -561,9 +561,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>300</y>
-      <width>150</width>
-      <height>120</height>
+      <y>260</y>
+      <width>100</width>
+      <height>160</height>
      </rect>
     </property>
     <property name="font">
@@ -1804,9 +1804,9 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>40</x>
       <y>460</y>
-      <width>127</width>
+      <width>130</width>
       <height>147</height>
      </rect>
     </property>
@@ -1868,7 +1868,7 @@
      <rect>
       <x>10</x>
       <y>460</y>
-      <width>60</width>
+      <width>20</width>
       <height>147</height>
      </rect>
     </property>

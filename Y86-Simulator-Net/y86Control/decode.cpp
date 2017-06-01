@@ -258,30 +258,31 @@ void Decode::dealWritebackData()
 void Decode::circleBegin()
 {
     qWarning()<<"decode Circle";
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        clientToWriteback->waitForReadyRead();
+        clientToMemory->waitForReadyRead();
+        clientToExecute->waitForReadyRead();
+        decode();
+        sel_fwd_valA();
+        fwd_valB();
+        sendToExecute(dataToExecute());
+        sendToFetch(dataToFetch());
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        D_stat = -1;
+        isRisk = false;
+        E_icode = -1;
+        M_dstE = -1;
+        M_dstM = -1;
+        W_dstE = -1;
+        W_dstM = -1;
+    }
     clientToClock->write("done");
     clientToClock->waitForBytesWritten();
-//    QString str=QString(clientToClock->readAll());
-//    if(str=="nextStep")
-//    {
-//        clientToWriteback->waitForReadyRead();
-//        clientToMemory->waitForReadyRead();
-//        clientToExecute->waitForReadyRead();
-//        decode();
-//        sel_fwd_valA();
-//        fwd_valB();
-//        sendToExecute(dataToExecute());
-//        sendToFetch(dataToFetch());
-//        //执行该时钟周期
-//    }else if(str=="restart")
-//    {
-//        D_stat = -1;
-//        isRisk = false;
-//        E_icode = -1;
-//        M_dstE = -1;
-//        M_dstM = -1;
-//        W_dstE = -1;
-//        W_dstM = -1;
-//    }
+
 }
 
 //读取寄存器的值

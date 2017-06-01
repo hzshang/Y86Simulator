@@ -235,20 +235,21 @@ void  Memory::dealExecuteData()
 void Memory::circleBegin()
 {
     qWarning()<<"memory Circle";
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        memory();
+        sendToDecode(dataToDecode());
+        sendToFetch(dataToFetch());
+        sendToWriteback(dataToWriteback());
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        M_stat = -1;
+    }
     clientToClock->write("done");
     clientToClock->waitForBytesWritten();
-//    QString str=QString(clientToClock->readAll());
-//    if(str=="nextStep")
-//    {
-//        memory();
-//        sendToDecode(dataToDecode());
-//        sendToFetch(dataToFetch());
-//        sendToWriteback(dataToWriteback());
-//        //执行该时钟周期
-//    }else if(str=="restart")
-//    {
-//        M_stat = -1;
-//    }
+
 }
 void Memory::memory()
 {
