@@ -46,6 +46,8 @@ void Decode::move()
 QJsonObject Decode::dataToExecute()
 {
     QJsonObject sendData;
+    if(isEnd)
+        return sendData;
     if(d_stat != 0)
     {
         sendData.insert("E_stat",d_stat);
@@ -173,6 +175,11 @@ void Decode::dealFetchData()
     QByteArray bytes=socketForFetch->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
     emit sendFromDecode(json);
+    if(!json.contains("D_stat"))
+    {
+        isEnd = true;
+        return;
+    }
     D_stat = json.value("D_stat").toInt();
     if(json.contains("D_icode"))
     {
@@ -253,36 +260,6 @@ void Decode::dealWritebackData()
     }
     else
         W_dstE = -1;
-}
-
-void Decode::circleBegin()
-{
-    qWarning()<<"decode Circle";
-    QString str=QString(clientToClock->readAll());
-    if(str=="nextStep")
-    {
-        clientToWriteback->waitForReadyRead();
-        clientToMemory->waitForReadyRead();
-        clientToExecute->waitForReadyRead();
-        decode();
-        sel_fwd_valA();
-        fwd_valB();
-        sendToExecute(dataToExecute());
-        sendToFetch(dataToFetch());
-        //执行该时钟周期
-    }else if(str=="restart")
-    {
-        D_stat = -1;
-        isRisk = false;
-        E_icode = -1;
-        M_dstE = -1;
-        M_dstM = -1;
-        W_dstE = -1;
-        W_dstM = -1;
-    }
-    clientToClock->write("done");
-    clientToClock->waitForBytesWritten();
-
 }
 
 //读取寄存器的值
@@ -458,3 +435,40 @@ void Decode::fwd_valB()
     }
 }
 
+void Decode::circleBegin()
+{
+    qWarning()<<"decode Circle";
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        //clientToWriteback->waitForReadyRead();
+        //clientToMemory->waitForReadyRead();
+        //clientToExecute->waitForReadyRead();
+        if(!isEnd)
+        {
+            decode();
+            sel_fwd_valA();
+            fwd_valB();
+            sendToFetch(dataToFetch());
+        }
+        sendToExecute(dataToExecute());
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        D_stat = -1;
+        E_icode = -1;
+        M_dstE = -1;
+        M_dstM = -1;
+        W_dstE = -1;
+        W_dstM = -1;
+
+        isRisk = false;
+        isEnd = false;
+
+        QJsonObject json;
+        emit sendFromDecode(json);
+    }
+    clientToClock->write("done");
+    clientToClock->waitForBytesWritten();
+
+}

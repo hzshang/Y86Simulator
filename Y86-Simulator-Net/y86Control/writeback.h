@@ -26,9 +26,12 @@ private slots:
     void circleBegin();
 signals:
     void sendFromWriteback(QJsonObject);
+    void clearReg(bool);
 private:
     int W_stat=-1,W_icode,W_valE,W_valM,W_dstE,W_dstM;
     QString instruction;
+    bool isEnd = false;
+
     void writeReg(int dst,int val);
     void writeback();
     void init();

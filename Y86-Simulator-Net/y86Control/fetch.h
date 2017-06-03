@@ -29,6 +29,7 @@ private:
     int PC = 0;
     bool isRet = false;
     bool isRisk = false;
+    bool isEnd = false;
     int f_stat,f_icode,f_ifun,f_rA,f_rB,f_valC,f_valP;
 
     int M_icode=-1,M_valA=-1,M_Cnd=-1;

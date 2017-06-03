@@ -32,7 +32,8 @@ private slots:
     void receiveFromExecute(QJsonObject);
     void receiveFromMemory(QJsonObject);
     void receiveFromWriteback(QJsonObject);
-    void receiveCC(int,int,int);
+    void receiveCC(QJsonObject);
+    void receiveClear(bool);
     void on_run_clicked();
     void on_next_clicked();
     void on_restart_clicked();

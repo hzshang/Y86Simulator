@@ -40,7 +40,7 @@ void MainWindow::beginpipelineSlot(Y86 *y86)
         QObject::connect(wy86->decode,SIGNAL(sendFromDecode(QJsonObject)),this,SLOT(receiveFromDecode(QJsonObject)));
     if(wy86->execute)
     {
-        QObject::connect(wy86->execute,SIGNAL(sendCC(int,int,int)),this,SLOT(receiveCC(int,int,int)));
+        QObject::connect(wy86->execute,SIGNAL(sendCC(QJsonObject)),this,SLOT(receiveCC(QJsonObject)));
         QObject::connect(wy86->execute,SIGNAL(sendFromExecute(QJsonObject)),this,SLOT(receiveFromExecute(QJsonObject)));
     }
     if(wy86->memory)
@@ -50,6 +50,7 @@ void MainWindow::beginpipelineSlot(Y86 *y86)
     if(wy86->writeback)
     {
         QObject::connect(wy86->writeback,SIGNAL(sendFromWriteback(QJsonObject)),this,SLOT(receiveFromWriteback(QJsonObject)));
+        QObject::connect(wy86->writeback,SIGNAL(clearReg(bool)),this,SLOT(receiveClear(bool)));
     }
     if(!y86->master)
     {
@@ -72,7 +73,7 @@ void MainWindow::openFile()
 void MainWindow::setLine(QLineEdit *l, QString str)
 {
     l->setText(str);
-    l->setStyleSheet("background-color:rgba(0,255,255,255)");
+    //l->setStyleSheet("background-color:rgba(0,255,255,255)");
 }
 void MainWindow::writeReg(QString dst, QString val)
 {
@@ -139,61 +140,72 @@ void MainWindow::on_openFile_clicked()
 void MainWindow::receiveFromFetch(QJsonObject rev)
 { 
     ui->F_stat->clear();
-    int stat = rev.value("stat").toInt();
-    if(stat == 0)
+    if(rev.contains("stat"))
     {
-        setLine(ui->F_stat,"AOK");
-
-        ui->F_instruction->clear();
-        ui->F_instruction->setText(rev.value("instruction").toString());
-
-        ui->PC->clear();
-        if(rev.contains("PC"))
+        int stat = rev.value("stat").toInt();
+        if(stat == 0)
         {
-            QString str = rev.value("PC").toString();
-            setLine(ui->PC,str);
-        }
+            setLine(ui->F_stat,"AOK");
 
-        ui->predPC->clear();
-        if(rev.contains("predPC"))
-        {
-            QString str = rev.value("predPC").toString();
-            setLine(ui->predPC,str);
+            ui->F_instruction->clear();
+            ui->F_instruction->setText(rev.value("instruction").toString());
+
+            ui->PC->clear();
+            if(rev.contains("PC"))
+            {
+                QString str = QString::number(rev.value("PC").toInt(),10);
+                setLine(ui->PC,str);
+            }
+
+            ui->predPC->clear();
+            if(rev.contains("predPC"))
+            {
+                QString str = QString::number(rev.value("predPC").toInt(),10);
+                setLine(ui->predPC,str);
+            }
         }
+        else if(stat == 1)
+            setLine(ui->F_stat,"HTL");
+        else
+            setLine(ui->F_stat,"INS");
     }
-    else if(stat == 1)
-        setLine(ui->F_stat,"HTL");
     else
-        setLine(ui->F_stat,"INS");
-
+    {
+        ui->F_instruction->clear();
+        ui->PC->clear();
+        ui->predPC->clear();
+    }
 }
 
 void MainWindow::receiveFromDecode(QJsonObject rev)
 {
     ui->D_stat->clear();
-    int stat = rev.value("D_stat").toInt();
-    if(stat == 0)
-        setLine(ui->D_stat,"AOK");
-    else if(stat == 1)
-        setLine(ui->D_stat,"HTL");
-    else
-        setLine(ui->D_stat,"INS");
+    if(rev.contains("D_stat"))
+    {
+        int stat = rev.value("D_stat").toInt();
+        if(stat == 0)
+            setLine(ui->D_stat,"AOK");
+        else if(stat == 1)
+            setLine(ui->D_stat,"HTL");
+        else
+            setLine(ui->D_stat,"INS");
+    }
 
     ui->D_icode->clear();
     ui->D_ifun->clear();
     ui->D_valP->clear();
+    ui->D_instruction->clear();
     if(rev.contains("D_icode"))
     {
-        QString str = rev.value("D_icode").toString();
+        QString str = QString::number(rev.value("D_icode").toInt(),10);
         setLine(ui->D_icode,str);
 
-        str = rev.value("D_ifun").toString();
+        str = QString::number(rev.value("D_ifun").toInt(),10);
         setLine(ui->D_ifun,str);
 
-        str = rev.value("D_valP").toString();
+        str = QString::number(rev.value("D_valP").toInt(),10);
         setLine(ui->D_valP,str);
 
-        ui->D_instruction->clear();
         ui->D_instruction->setText(rev.value("instruction").toString());
 
     }
@@ -201,19 +213,19 @@ void MainWindow::receiveFromDecode(QJsonObject rev)
     ui->D_rA->clear();
     if(rev.contains("D_rA"))
     {
-        QString str = rev.value("D_rA").toString();
+        QString str = QString::number(rev.value("D_rA").toInt(),10);
         setLine(ui->D_rA,str);
     }
     ui->D_rB->clear();
     if(rev.contains("D_rB"))
     {
-        QString str = rev.value("D_rB").toString();
+        QString str = QString::number(rev.value("D_rB").toInt(),10);
         setLine(ui->D_rB,str);
     }
     ui->D_valC->clear();
     if(rev.contains("D_valC"))
     {
-        QString str = rev.value("D_valC").toString();
+        QString str = QString::number(rev.value("D_valC").toInt(),10);
         setLine(ui->D_valC,str);
     }
 }
@@ -221,66 +233,75 @@ void MainWindow::receiveFromDecode(QJsonObject rev)
 void MainWindow::receiveFromExecute(QJsonObject rev)
 {
     ui->E_stat->clear();
-    int stat = rev.value("E_stat").toInt();
-    if(stat == 0)
-        setLine(ui->E_stat,"AOK");
-    else if(stat == 1)
-        setLine(ui->E_stat,"HTL");
+    if(rev.contains("E_stat"))
+    {
+        int stat = rev.value("E_stat").toInt();
+        if(stat == 0)
+            setLine(ui->E_stat,"AOK");
+        else if(stat == 1)
+            setLine(ui->E_stat,"HTL");
+        else
+            setLine(ui->E_stat,"INS");
+    }
     else
-        setLine(ui->E_stat,"INS");
+    {
+        ui->ZF->clear();
+        ui->SF->clear();
+        ui->OF->clear();
+    }
 
     ui->E_icode->clear();
     ui->E_ifun->clear();
+    ui->E_instruction->clear();
     if(rev.contains("E_icode"))
     {
-        QString str = rev.value("E_icode").toString();
+        QString str = QString::number(rev.value("E_icode").toInt(),10);
         setLine(ui->E_icode,str);
-        str = rev.value("E_ifun").toString();
+        str = QString::number(rev.value("E_ifun").toInt(),10);
         setLine(ui->E_ifun,str);
 
-        ui->E_instruction->clear();
         ui->E_instruction->setText(rev.value("instruction").toString());
     }
     ui->E_valC->clear();
     if(rev.contains("E_valC"))
     {
-        QString str = rev.value("E_valC").toString();
+        QString str = QString::number(rev.value("E_valC").toInt(),10);
         setLine(ui->E_valC,str);
     }
     ui->E_valA->clear();
     if(rev.contains("E_valA"))
     {
-        QString str = rev.value("E_valA").toString();
+        QString str = QString::number(rev.value("E_valA").toInt(),10);
         setLine(ui->E_valA,str);
     }
     ui->E_valB->clear();
     if(rev.contains("E_valB"))
     {
-        QString str = rev.value("E_valB").toString();
+        QString str = QString::number(rev.value("E_valB").toInt(),10);
         setLine(ui->E_valB,str);
     }
     ui->E_dstE->clear();
     if(rev.contains("E_dstE"))
     {
-        QString str = rev.value("E_dstE").toString();
+        QString str = QString::number(rev.value("E_dstE").toInt(),10);
         setLine(ui->E_dstE,str);
     }
     ui->E_dstM->clear();
     if(rev.contains("E_dstM"))
     {
-        QString str = rev.value("E_dstM").toString();
+        QString str = QString::number(rev.value("E_dstM").toInt(),10);
         setLine(ui->E_dstM,str);
     }
     ui->E_srcA->clear();
     if(rev.contains("E_srcA"))
     {
-        QString str = rev.value("E_srcA").toString();
+        QString str = QString::number(rev.value("E_srcA").toInt(),10);
         setLine(ui->E_srcA,str);
     }
     ui->E_srcB->clear();
     if(rev.contains("E_srcB"))
     {
-        QString str = rev.value("E_srcB").toString();
+        QString str = QString::number(rev.value("E_srcB").toInt(),10);
         setLine(ui->E_srcB,str);
     }
 }
@@ -288,57 +309,55 @@ void MainWindow::receiveFromExecute(QJsonObject rev)
 void MainWindow::receiveFromMemory(QJsonObject rev)
 {
     ui->M_stat->clear();
-    int stat = rev.value("M_stat").toInt();
-    if(stat == 0)
-        setLine(ui->M_stat,"AOK");
-    else if(stat == 1)
-        setLine(ui->M_stat,"HTL");
-    else
-        setLine(ui->M_stat,"INS");
+    if(rev.contains("M_stat"))
+    {
+        int stat = rev.value("M_stat").toInt();
+        if(stat == 0)
+            setLine(ui->M_stat,"AOK");
+        else if(stat == 1)
+            setLine(ui->M_stat,"HTL");
+        else
+            setLine(ui->M_stat,"INS");
+    }
 
     ui->M_icode->clear();
+    ui->M_instruction->clear();
     if(rev.contains("M_icode"))
     {
-        QString str = rev.value("M_icode").toString();
+        QString str = QString::number(rev.value("M_icode").toInt(),10);
         setLine(ui->M_icode,str);
 
-        ui->M_instruction->clear();
         ui->M_instruction->setText(rev.value("instruction").toString());
     }
     ui->M_Cnd->clear();
     if(rev.contains("M_Cnd"))
     {
-        QString str = rev.value("M_Cnd").toString();
+        QString str = QString::number(rev.value("M_Cnd").toInt(),10);
         setLine(ui->M_Cnd,str);
     }
-    ui->M_icode->clear();
-    if(rev.contains("M_icode"))
-    {
-        QString str = rev.value("M_icode").toString();
-        setLine(ui->M_icode,str);
-    }
+
     ui->M_valE->clear();
     if(rev.contains("M_valE"))
     {
-        QString str = rev.value("M_valE").toString();
+        QString str = QString::number(rev.value("M_valE").toInt(),10);
         setLine(ui->M_valE,str);
     }
     ui->M_valA->clear();
     if(rev.contains("M_valA"))
     {
-        QString str = rev.value("M_valA").toString();
+        QString str = QString::number(rev.value("M_valA").toInt(),10);
         setLine(ui->M_valA,str);
     }
     ui->M_dstE->clear();
     if(rev.contains("M_dstE"))
     {
-        QString str = rev.value("M_dstE").toString();
+        QString str = QString::number(rev.value("M_dstE").toInt(),10);
         setLine(ui->M_dstE,str);
     }
     ui->M_dstM->clear();
     if(rev.contains("M_dstM"))
     {
-        QString str = rev.value("M_dstM").toString();
+        QString str = QString::number(rev.value("M_dstM").toInt(),10);
         setLine(ui->M_dstM,str);
     }
 }
@@ -346,23 +365,26 @@ void MainWindow::receiveFromMemory(QJsonObject rev)
 void MainWindow::receiveFromWriteback(QJsonObject rev)
 {
     ui->W_stat->clear();
-    int stat = rev.value("W_stat").toInt();
-    if(stat == 0)
-        setLine(ui->W_stat,"AOK");
-    else if(stat == 1)
-        setLine(ui->W_stat,"HTL");
-    else if(stat == 2)
-        setLine(ui->W_stat,"ADS");
-    else
-        setLine(ui->W_stat,"INS");
+    if(rev.contains("W_stat"))
+    {
+        int stat = rev.value("W_stat").toInt();
+        if(stat == 0)
+            setLine(ui->W_stat,"AOK");
+        else if(stat == 1)
+            setLine(ui->W_stat,"HTL");
+        else if(stat == 2)
+            setLine(ui->W_stat,"ADS");
+        else
+            setLine(ui->W_stat,"INS");
+    }
 
     ui->W_icode->clear();
+    ui->W_instruction->clear();
     if(rev.contains("W_icode"))
     {
-        QString str = rev.value("W_icode").toString();
+        QString str = QString::number(rev.value("W_icode").toInt(),10);
         setLine(ui->W_icode,str);
 
-        ui->W_instruction->clear();
         ui->W_instruction->setText(rev.value("instruction").toString());
     }
 
@@ -370,9 +392,9 @@ void MainWindow::receiveFromWriteback(QJsonObject rev)
     ui->W_valE->clear();
     if(rev.contains("W_dstE"))
     {
-        QString dst = rev.value("W_dstE").toString();
+        QString dst = QString::number(rev.value("W_dstE").toInt(),10);
         setLine(ui->W_dstE,dst);
-        QString val = rev.value("W_valE").toString();
+        QString val = QString::number(rev.value("W_valE").toInt(),10);
         setLine(ui->W_valE,val);
         writeReg(dst,val);
     }
@@ -380,25 +402,42 @@ void MainWindow::receiveFromWriteback(QJsonObject rev)
     ui->W_valM->clear();
     if(rev.contains("W_dstM"))
     {
-        QString dst = rev.value("W_dstM").toString();
+        QString dst = QString::number(rev.value("W_dstM").toInt(),10);
         setLine(ui->W_dstM,dst);
-        QString val = rev.value("W_valM").toString();
+        QString val = QString::number(rev.value("W_valM").toInt(),10);
         setLine(ui->W_valM,val);
         writeReg(dst,val);
     }
 }
 
-void MainWindow::receiveCC(int z, int s, int o)
+void MainWindow::receiveCC(QJsonObject rev)
 {
-    QString str = QString::number(z,10);
     ui->ZF->clear();
-    ui->ZF->setText(str);
-    str = QString::number(s,10);
     ui->SF->clear();
-    ui->SF->setText(str);
-    str = QString::number(o,10);
     ui->OF->clear();
-    ui->OF->setText(str);
+    if(rev.contains("SF"))
+    {
+        QString str = QString::number(rev.value("ZF").toInt(),10);
+        ui->ZF->setText(str);
+        str = QString::number(rev.value("SF").toInt(),10);
+        ui->SF->setText(str);
+        str = QString::number(rev.value("OF").toInt(),10);
+        ui->OF->setText(str);
+    }
+}
+void MainWindow::receiveClear(bool f)
+{
+    if(f)
+    {
+        ui->eax->clear();
+        ui->ebx->clear();
+        ui->ecx->clear();
+        ui->edx->clear();
+        ui->esp->clear();
+        ui->ebp->clear();
+        ui->esi->clear();
+        ui->edi->clear();
+    }
 }
 
 void MainWindow::on_next_clicked()

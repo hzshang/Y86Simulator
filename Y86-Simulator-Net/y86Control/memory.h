@@ -33,6 +33,7 @@ private:
     int m_stat,m_icode,m_valE,m_valM,m_dstE,m_dstM;
     QString instruction;
     QMap<int,int> mem;
+    bool isEnd = false;
     void init();
     QJsonObject dataToWriteback();
     void sendToWriteback(QJsonObject json);

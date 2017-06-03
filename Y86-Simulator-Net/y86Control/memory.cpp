@@ -73,6 +73,8 @@ void Memory::init()
 QJsonObject Memory::dataToWriteback()
 {
     QJsonObject sendData;
+    if(isEnd)
+        return sendData;
     if(m_stat != 0)
     {
         sendData.insert("W_stat",m_stat);
@@ -212,9 +214,13 @@ void  Memory::dealExecuteData()
     QByteArray bytes=socketForExecute->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
     emit sendFromMemory(json);
+    if(!json.contains("M_stat"))
+    {
+        isEnd = true;
+        return;
+    }
 
     M_stat = json.value("M_stat").toInt();
-
     if(json.contains("M_icode"))
     {
         M_icode = json.value("M_icode").toInt();
@@ -232,25 +238,6 @@ void  Memory::dealExecuteData()
         M_dstM = json.value("M_dstM").toInt();
 }
 
-void Memory::circleBegin()
-{
-    qWarning()<<"memory Circle";
-    QString str=QString(clientToClock->readAll());
-    if(str=="nextStep")
-    {
-        memory();
-        sendToDecode(dataToDecode());
-        sendToFetch(dataToFetch());
-        sendToWriteback(dataToWriteback());
-        //执行该时钟周期
-    }else if(str=="restart")
-    {
-        M_stat = -1;
-    }
-    clientToClock->write("done");
-    clientToClock->waitForBytesWritten();
-
-}
 void Memory::memory()
 {
     m_stat = M_stat;
@@ -307,7 +294,32 @@ void Memory::memory()
     default:
         break;
     }
-
 }
 
+void Memory::circleBegin()
+{
+    qWarning()<<"memory Circle";
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        if(!isEnd)
+        {
+            memory();
+            sendToDecode(dataToDecode());
+            sendToFetch(dataToFetch());
+        }
+        sendToWriteback(dataToWriteback());
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        M_stat = -1;
+        isEnd = false;
+
+        QJsonObject json;
+        emit sendFromMemory(json);
+    }
+    clientToClock->write("done");
+    clientToClock->waitForBytesWritten();
+
+}
 

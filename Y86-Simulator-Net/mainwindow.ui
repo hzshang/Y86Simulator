@@ -562,8 +562,8 @@
      <rect>
       <x>10</x>
       <y>260</y>
-      <width>100</width>
-      <height>160</height>
+      <width>121</width>
+      <height>151</height>
      </rect>
     </property>
     <property name="font">
@@ -1322,7 +1322,7 @@
       <x>320</x>
       <y>11</y>
       <width>71</width>
-      <height>255</height>
+      <height>311</height>
      </rect>
     </property>
     <property name="font">
@@ -1454,23 +1454,6 @@
        </property>
       </widget>
      </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>319</x>
-      <y>330</y>
-      <width>71</width>
-      <height>166</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Times New Roman</family>
-     </font>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_5">
      <item>
       <widget class="QLabel" name="label_24">
        <property name="font">
@@ -1498,6 +1481,23 @@
        </property>
       </widget>
      </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>319</x>
+      <y>385</y>
+      <width>71</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+     </font>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_5">
      <item>
       <widget class="QLabel" name="label_31">
        <property name="font">
@@ -1644,9 +1644,9 @@
     <property name="geometry">
      <rect>
       <x>400</x>
-      <y>210</y>
+      <y>220</y>
       <width>71</width>
-      <height>50</height>
+      <height>100</height>
      </rect>
     </property>
     <property name="font">
@@ -1682,23 +1682,6 @@
        </property>
       </widget>
      </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>399</x>
-      <y>330</y>
-      <width>71</width>
-      <height>166</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Times New Roman</family>
-     </font>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_12">
      <item>
       <widget class="QLabel" name="label_25">
        <property name="font">
@@ -1726,6 +1709,23 @@
        </property>
       </widget>
      </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>399</x>
+      <y>385</y>
+      <width>71</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+     </font>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_12">
      <item>
       <widget class="QLabel" name="label_32">
        <property name="font">
@@ -1975,7 +1975,7 @@
      <x>0</x>
      <y>0</y>
      <width>670</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

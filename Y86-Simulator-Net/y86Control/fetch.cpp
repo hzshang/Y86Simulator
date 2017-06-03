@@ -41,6 +41,8 @@ void Fetch::init()
 QJsonObject Fetch::DataToDecode()
 {
     QJsonObject sendData;
+    if(isEnd)
+        return sendData;
     if(f_stat != 0)
     {
         sendData.insert("D_stat",f_stat);
@@ -147,40 +149,7 @@ void Fetch::dealDecodeData()
         d_srcB = -1;
 }
 
-void Fetch::circleBegin()
-{
-    qWarning()<<"fetch Circle";
-    //每个周期要做的操作
-    QString str=QString(clientToClock->readAll());
-    if(str=="nextStep")
-    {
-        //有可能相互阻碍
-        clientToWriteback->waitForReadyRead();
-        clientToMemory->waitForReadyRead();
-        clientToExecute->waitForReadyRead();
-        clientToDecode->waitForReadyRead();
-        select_PC();
-        fetch();
-        getInstruction();
-        emit sendFromFetch(dataToMainWindow());
-        predict_PC();
-        sendToDecode(DataToDecode());
-        //执行该时钟周期
-    }else if(str=="restart")
-    {
-        PC = 0;
-        f_stat = -1;
-        instrString = "";
-        isRet = false;
-        isRisk = false;
-        E_icode = -1;
-        M_icode = -1;
-        W_icode = -1;
-    }
-    clientToClock->write("done");
-    clientToClock->waitForBytesWritten();
 
-}
 void Fetch::receiveInstr(QString str)
 {
     instruction = str;
@@ -211,8 +180,10 @@ int Fetch::hexTodec(QString str)
         case 1:
             return 1;
         case 2:
-            return 3;
+            return 2;
         case 3:
+            return 3;
+        case 4:
             return 4;
         case 5:
             return 5;
@@ -375,17 +346,20 @@ void Fetch::select_PC()
         PC = W_valM;
         isRet = false;
     }
-    else if(isRisk)
+    else if(isRisk || isEnd)
     {
-        PC = PC;
+        //PC = PC;
         isRisk = false;
     }
     else
         PC = predPC;
+
+    if(PC >= instrCode.length())
+        isEnd = true;
 }
 
 void Fetch::fetch()
-{   
+{
     //分支错误处理
     if(E_icode == 7 && !e_Cnd)
         f_icode = 1;
@@ -489,6 +463,8 @@ void Fetch::predict_PC()
 QJsonObject Fetch::dataToMainWindow()
 {
     QJsonObject sendData;
+    if(isEnd)
+        return sendData;
     if(f_stat != 0)
         sendData.insert("stat",f_stat);
     else
@@ -500,4 +476,48 @@ QJsonObject Fetch::dataToMainWindow()
     }
     return sendData;
 }
+void Fetch::circleBegin()
+{
+    qWarning()<<"fetch Circle";
+    //每个周期要做的操作
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        //有可能相互阻碍
+        //clientToWriteback->waitForReadyRead();
+        //clientToMemory->waitForReadyRead();
+        //clientToExecute->waitForReadyRead();
+        //clientToDecode->waitForReadyRead();
+        select_PC();
+        if(!isEnd)
+        {
+            fetch();
+            getInstruction();
+            predict_PC();
+        }
+        emit sendFromFetch(dataToMainWindow());
+        sendToDecode(DataToDecode());
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        qDebug()<<100;
+        PC = 0;
+        predPC = 0;
+        f_stat = -1;
+        E_icode = -1;
+        M_icode = -1;
+        W_icode = -1;
+        instrString = "";
+        isRet = false;
+        isRisk = false;
+        isEnd = false;
 
+        QJsonObject json;
+        emit sendFromFetch(json);
+    }
+    if(isEnd)
+        clientToClock->write("over");
+    else
+        clientToClock->write("done");
+    clientToClock->waitForBytesWritten();
+}

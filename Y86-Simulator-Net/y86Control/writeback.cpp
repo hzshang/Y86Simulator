@@ -148,8 +148,12 @@ void Writeback::dealMemoryData()
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
     emit sendFromWriteback(json);
 
+    if(!json.contains("W_stat"))
+    {
+        isEnd = true;
+        return;
+    }
     W_stat = json.value("W_stat").toInt();
-
     if(json.contains("W_icode"))
     {
         W_icode = json.value("W_icode").toInt();
@@ -163,26 +167,6 @@ void Writeback::dealMemoryData()
         W_dstE = json.value("W_dstE").toInt();
     if(json.contains("W_dstM"))
         W_dstM = json.value("W_dstM").toInt();
-}
-
-void Writeback::circleBegin()
-{
-    qWarning()<<"writeback Circle";
-    QString str=QString(clientToClock->readAll());
-    if(str=="nextStep")
-    {
-        writeback();
-        sendToDecode(dataToDecode());
-        sendToFetch(dataToFetch());
-        //反馈给时钟
-        //执行该时钟周期
-    }else if(str=="restart")
-    {
-        W_stat = -1;
-    }
-    clientToClock->write("done");
-    clientToClock->waitForBytesWritten();
-
 }
 
 //给寄存器写回相应的值
@@ -253,4 +237,32 @@ void Writeback::writeback()
     default:
         break;
     }
+}
+
+void Writeback::circleBegin()
+{
+    qWarning()<<"writeback Circle";
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        if(!isEnd)
+        {
+            writeback();
+            sendToDecode(dataToDecode());
+            sendToFetch(dataToFetch());
+        }
+        //反馈给时钟
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        W_stat = -1;
+        isEnd = false;
+
+        QJsonObject json;
+        emit sendFromWriteback(json);
+        emit clearReg(true);
+    }
+    clientToClock->write("done");
+    clientToClock->waitForBytesWritten();
+
 }

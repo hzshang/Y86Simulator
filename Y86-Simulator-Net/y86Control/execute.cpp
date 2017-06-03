@@ -127,6 +127,8 @@ void Execute::sendToDecode(QJsonObject json)
 QJsonObject Execute::dataToMemory()
 {
     QJsonObject sendData;
+    if(isEnd)
+        return sendData;
     if(e_stat != 0)
     {
         sendData.insert("M_stat",e_stat);
@@ -184,6 +186,15 @@ void Execute::sendToMemory(QJsonObject json)
     clientToMemory->write(bytes);
 }
 
+QJsonObject Execute::CCData()
+{
+    QJsonObject sendData;
+    sendData.insert("SF",SF);
+    sendData.insert("ZF",ZF);
+    sendData.insert("OF",OF);
+    return sendData;
+}
+
 void Execute::dealDecodeData()
 {
     //get:E_stat,E_icode,E_ifun,E_valC,E_valA,E_valB,E_dstE,E_dstM;
@@ -191,6 +202,11 @@ void Execute::dealDecodeData()
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
     emit sendFromExecute(json);
 
+    if(!json.contains("E_stat"))
+    {
+        isEnd = true;
+        return;
+    }
     E_stat = json.value("E_stat").toInt();
     if(json.contains("E_icode"))
     {
@@ -213,27 +229,6 @@ void Execute::dealDecodeData()
         E_srcA = json.value("E_srcA").toInt();
     if(json.contains("E_srcB"))
         E_srcB = json.value("E_srcB").toInt();
-}
-
-void Execute::circleBegin()
-{
-    qWarning()<<"execute Circle";
-    QString str=QString(clientToClock->readAll());
-    if(str=="nextStep")
-    {
-        execute();
-        emit sendCC(ZF,SF,OF);
-        sendToMemory(dataToMemory());
-        sendToDecode(dataToDecode());
-        sendToFetch(dataToFetch());
-        //执行该时钟周期
-    }else if(str=="restart")
-    {
-        E_stat = -1;
-    }
-    clientToClock->write("done");
-    clientToClock->waitForBytesWritten();
-
 }
 
 //预处理aluA的值
@@ -413,5 +408,34 @@ void Execute::execute()
     default:
         break;
     }
+}
+void Execute::circleBegin()
+{
+    qWarning()<<"execute Circle";
+    QString str=QString(clientToClock->readAll());
+    if(str=="nextStep")
+    {
+        if(!isEnd)
+        {
+            execute();
+            emit sendCC(CCData());
+            sendToDecode(dataToDecode());
+            sendToFetch(dataToFetch());
+        }
+        sendToMemory(dataToMemory());
+        //执行该时钟周期
+    }else if(str=="restart")
+    {
+        E_stat = -1;
+        ZF = 0;SF = 0;OF = 0;
+        isEnd = false;
+
+        QJsonObject json;
+        emit sendFromExecute(json);
+        emit sendCC(json);
+    }
+    clientToClock->write("done");
+    clientToClock->waitForBytesWritten();
+
 }
 

@@ -33,6 +33,7 @@ private:
     int icodeStorage;
     QString instruction;
     bool isRisk = false;
+    bool isEnd = false;
 
     int E_icode=-1,e_Cnd=-1,E_dstM=-1,e_dstE=-1,e_valE=-1;
     int M_dstM=-1,m_valM=-1,M_dstE=-1,M_valE=-1;
