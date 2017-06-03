@@ -76,6 +76,8 @@ QJsonObject Writeback::dataToDecode()
 {
     //get: W_dstM,W_valM,W_dstE,W_valE
     QJsonObject sendData;
+    if(isEnd)
+        return sendData;
     if(W_stat != 0)
         return sendData;
     switch (W_icode) {
@@ -120,6 +122,8 @@ QJsonObject Writeback::dataToFetch()
 {
     //get:W_icode,W_valM
     QJsonObject sendData;
+    if(isEnd)
+        return sendData;
     if(W_stat != 0)
         return sendData;
     if(W_icode == 9)
@@ -180,10 +184,10 @@ void Writeback::writeReg(int dst, int val)
         globle::ecx = val;
         break;
     case 2:
-        globle::ebx = val;
+        globle::edx = val;
         break;
     case 3:
-        globle::edx = val;
+        globle::ebx = val;
         break;
     case 4:
         globle::esp = val;
@@ -248,11 +252,10 @@ void Writeback::circleBegin()
         if(!isEnd)
         {
             writeback();
-            sendToDecode(dataToDecode());
-            sendToFetch(dataToFetch());
         }
-        //反馈给时钟
-        //执行该时钟周期
+        sendToDecode(dataToDecode());
+        sendToFetch(dataToFetch());
+        qDebug()<<"writedone";
     }else if(str=="restart")
     {
         W_stat = -1;

@@ -39,6 +39,11 @@ private:
     int M_dstM=-1,m_valM=-1,M_dstE=-1,M_valE=-1;
     int W_dstM=-1,W_valM=-1,W_dstE=-1,W_valE=-1;
 
+    QWaitCondition wait;
+    QMutex mutexWait;
+    QMutex mutexNum;
+    int doneNum;
+
     int getRegValue(int src);
     void decode();
     void sel_fwd_valA();

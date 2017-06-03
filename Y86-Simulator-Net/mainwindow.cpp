@@ -89,12 +89,12 @@ void MainWindow::writeReg(QString dst, QString val)
         ui->ecx->setText(val);
         break;
     case 2:
-        ui->ebx->clear();
-        ui->ebx->setText(val);
-        break;
-    case 3:
         ui->edx->clear();
         ui->edx->setText(val);
+        break;
+    case 3:
+        ui->ebx->clear();
+        ui->ebx->setText(val);
         break;
     case 4:
         ui->esp->clear();

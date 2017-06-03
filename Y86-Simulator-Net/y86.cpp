@@ -5,6 +5,7 @@ Y86::Y86()
     qRegisterMetaType<QHostAddress>("QHostAddress");
     listen=new QUdpSocket();
     broadcast=new QUdpSocket();
+    broadPoolSocket=new QUdpSocket();
     broadcast->moveToThread(this);
     circleTime=50;
     master=false;
@@ -394,10 +395,9 @@ void Y86::changeCircleTime(int value)
 {
     circleTime=value;
 }
-void broadPool(Y86* y86)
+void broadPool(Y86* y86,QUdpSocket *broad)
 {
     QJsonObject json;
-    QUdpSocket broad;
     json.insert("id",1);
     json.insert("FLevel",y86->fetch!=NULL);
     json.insert("DLevel",y86->decode!=NULL);
@@ -409,14 +409,15 @@ void broadPool(Y86* y86)
         QJsonObject temp=json;
         temp.insert("pool",y86->pool);
         QByteArray bytes=QJsonDocument(temp).toBinaryData();
-        broad.writeDatagram(bytes,bytes.size(),QHostAddress::Broadcast,Y86PORT);
+        broad->writeDatagram(bytes,bytes.size(),QHostAddress::Broadcast,Y86PORT);
         QThread::sleep(2);
     }
 }
 
 void Y86::newThreadBroad()
 {
-    QtConcurrent::run(broadPool,this);
+
+    QtConcurrent::run(broadPool,this,broadPoolSocket);
 }
 void Y86::init()
 {

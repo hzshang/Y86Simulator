@@ -55,6 +55,8 @@ void Execute::dealFetchConnection()
 QJsonObject Execute::dataToFetch()
 {
     QJsonObject sendData;
+    if(isEnd)
+        return sendData;
     if(e_stat != 0)
         return sendData;
     sendData.insert("E_icode",E_icode);
@@ -83,6 +85,8 @@ void Execute::sendToFetch(QJsonObject json)
 QJsonObject Execute::dataToDecode()
 {
     QJsonObject sendData;
+    if(isEnd)
+        return sendData;
     if(e_stat != 0)
         return sendData;
 
@@ -419,11 +423,11 @@ void Execute::circleBegin()
         {
             execute();
             emit sendCC(CCData());
-            sendToDecode(dataToDecode());
-            sendToFetch(dataToFetch());
         }
         sendToMemory(dataToMemory());
-        //执行该时钟周期
+        sendToDecode(dataToDecode());
+        sendToFetch(dataToFetch());
+        qDebug()<<"executedone";
     }else if(str=="restart")
     {
         E_stat = -1;

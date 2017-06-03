@@ -20,6 +20,7 @@ void Decode::init()
     clientToMemory=NULL;
     clientToWriteback=NULL;
     clientToClock=NULL;
+    doneNum=0;
     serverForFetch=new QTcpServer();
     serverForFetch->listen(QHostAddress::Any,DECODE_FOR_FETCH_PORT);
     connect(serverForFetch,SIGNAL(newConnection()),this,SLOT(dealFetchConnection()));
@@ -28,7 +29,6 @@ void Decode::init()
 Decode::~Decode()
 {
     delete serverForFetch;
-
 }
 
 void Decode::move()
@@ -127,6 +127,8 @@ void Decode::sendToExecute(QJsonObject json)
 QJsonObject Decode::dataToFetch()
 {
     QJsonObject sendData;
+    if(isEnd)
+        return sendData;
     if(d_stat != 0)
         return sendData;
     switch (d_icode) {
@@ -216,6 +218,14 @@ void Decode::dealExecuteData()
         e_dstE = json.value("e_dstE").toInt();
         e_valE = json.value("e_valE").toInt();
     }
+    mutexNum.lock();
+    doneNum++;
+    if(doneNum==3)
+    {
+        doneNum=0;
+        wait.wakeAll();
+    }
+    mutexNum.unlock();
 }
 
 void Decode::dealMemoryData()
@@ -238,6 +248,15 @@ void Decode::dealMemoryData()
     }
     else
         M_dstE = -1;
+
+    mutexNum.lock();
+    doneNum++;
+    if(doneNum==3)
+    {
+        doneNum=0;
+        wait.wakeAll();
+    }
+    mutexNum.unlock();
 }
 
 void Decode::dealWritebackData()
@@ -260,6 +279,14 @@ void Decode::dealWritebackData()
     }
     else
         W_dstE = -1;
+    mutexNum.lock();
+    doneNum++;
+    if(doneNum==3)
+    {
+        doneNum=0;
+        wait.wakeAll();
+    }
+    mutexNum.unlock();
 }
 
 //读取寄存器的值
@@ -444,15 +471,18 @@ void Decode::circleBegin()
         //clientToWriteback->waitForReadyRead();
         //clientToMemory->waitForReadyRead();
         //clientToExecute->waitForReadyRead();
+        mutexWait.lock();
+        wait.wait(&mutexNum);
+        mutexWait.unlock();
         if(!isEnd)
         {
             decode();
             sel_fwd_valA();
             fwd_valB();
-            sendToFetch(dataToFetch());
         }
         sendToExecute(dataToExecute());
-        //执行该时钟周期
+        sendToFetch(dataToFetch());
+        qDebug()<<"decodedone";
     }else if(str=="restart")
     {
         D_stat = -1;

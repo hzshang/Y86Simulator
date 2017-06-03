@@ -131,6 +131,8 @@ QJsonObject Memory::dataToFetch()
 {
     //get:M_icode,M_Cnd,M_valA;
     QJsonObject sendData;
+    if(isEnd)
+        return sendData;
     if(m_stat != 0)
         return sendData;
     if(M_icode == 7)
@@ -161,6 +163,8 @@ QJsonObject Memory::dataToDecode()
 {
     //get: M_dstM,m_valM,M_dstE,M_valE
     QJsonObject sendData;
+    if(isEnd)
+        return sendData;
     if(m_stat != 0)
         return sendData;
     switch (m_icode) {
@@ -305,11 +309,11 @@ void Memory::circleBegin()
         if(!isEnd)
         {
             memory();
-            sendToDecode(dataToDecode());
-            sendToFetch(dataToFetch());
         }
         sendToWriteback(dataToWriteback());
-        //执行该时钟周期
+        sendToDecode(dataToDecode());
+        sendToFetch(dataToFetch());
+        qDebug()<<"memorydone";
     }else if(str=="restart")
     {
         M_stat = -1;

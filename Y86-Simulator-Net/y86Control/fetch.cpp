@@ -15,7 +15,6 @@ Fetch::~Fetch()
 
 void Fetch::run()
 {
-
     exec();
 }
 
@@ -35,6 +34,7 @@ void Fetch::init()
     clientToWriteback=NULL;
     clientToClock=NULL;
     clientToExecute=NULL;
+    doneNum=0;
 }
 
 //生成发送到Decode阶段的数据
@@ -101,7 +101,14 @@ void Fetch:: dealMemoryData()
     }
     else
         M_icode = -1;
-
+    mutexNum.lock();
+    doneNum++;
+    if(doneNum==4)
+    {
+        doneNum=0;
+        wait.wakeAll();
+    }
+    mutexNum.unlock();
 }
 
 void Fetch::dealWritebackData()
@@ -116,6 +123,14 @@ void Fetch::dealWritebackData()
     }
     else
         W_icode = -1;
+    mutexNum.lock();
+    doneNum++;
+    if(doneNum==4)
+    {
+        doneNum=0;
+        wait.wakeAll();
+    }
+    mutexNum.unlock();
 }
 
 void Fetch::dealExecuteData()
@@ -132,6 +147,14 @@ void Fetch::dealExecuteData()
     }
     else
         E_icode = -1;
+    mutexNum.lock();
+    doneNum++;
+    if(doneNum==4)
+    {
+        doneNum=0;
+        wait.wakeAll();
+    }
+    mutexNum.unlock();
 }
 
 void Fetch::dealDecodeData()
@@ -147,6 +170,14 @@ void Fetch::dealDecodeData()
         d_srcB = json.value("d_srcB").toInt();
     else
         d_srcB = -1;
+    mutexNum.lock();
+    doneNum++;
+    if(doneNum==4)
+    {
+        doneNum=0;
+        wait.wakeAll();
+    }
+    mutexNum.unlock();
 }
 
 
@@ -476,6 +507,7 @@ QJsonObject Fetch::dataToMainWindow()
     }
     return sendData;
 }
+
 void Fetch::circleBegin()
 {
     qWarning()<<"fetch Circle";
@@ -483,11 +515,9 @@ void Fetch::circleBegin()
     QString str=QString(clientToClock->readAll());
     if(str=="nextStep")
     {
-        //有可能相互阻碍
-        //clientToWriteback->waitForReadyRead();
-        //clientToMemory->waitForReadyRead();
-        //clientToExecute->waitForReadyRead();
-        //clientToDecode->waitForReadyRead();
+        mutexWait.lock();
+        wait.wait(&mutexNum);
+        mutexWait.unlock();
         select_PC();
         if(!isEnd)
         {
@@ -497,7 +527,7 @@ void Fetch::circleBegin()
         }
         emit sendFromFetch(dataToMainWindow());
         sendToDecode(DataToDecode());
-        //执行该时钟周期
+        qDebug()<<"fetchdone";
     }else if(str=="restart")
     {
         qDebug()<<100;
@@ -511,7 +541,6 @@ void Fetch::circleBegin()
         isRet = false;
         isRisk = false;
         isEnd = false;
-
         QJsonObject json;
         emit sendFromFetch(json);
     }

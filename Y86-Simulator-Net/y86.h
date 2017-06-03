@@ -54,6 +54,7 @@ private:
 
     QUdpSocket *listen;
     QUdpSocket *broadcast;
+    QUdpSocket *broadPoolSocket;
     Clock *clock;
     QMutex mutex;
     QWaitCondition awake;

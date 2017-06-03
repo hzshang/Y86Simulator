@@ -53,6 +53,11 @@ private:
     QJsonObject DataToDecode();
     void sendToDecode(QJsonObject json);
     QJsonObject dataToMainWindow();
+
+    QWaitCondition wait;
+    QMutex mutexWait;
+    QMutex mutexNum;
+    int doneNum;
 };
 
 #endif // FETCH_H
