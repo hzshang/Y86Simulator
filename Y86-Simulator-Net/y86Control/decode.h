@@ -53,9 +53,8 @@ private:
     void sendToExecute(QJsonObject json);
     QJsonObject dataToFetch();
     void sendToFetch(QJsonObject json);
-
-//    void sendToMemory(QJsonObject json);
-//    void sendToWriteback(QJsonObject json);
+    void circleBegin2();
+    bool clockmark;
 };
 
 #endif // DECODE_H

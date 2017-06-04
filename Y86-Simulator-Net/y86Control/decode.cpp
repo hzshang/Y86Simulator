@@ -21,6 +21,7 @@ void Decode::init()
     clientToWriteback=NULL;
     clientToClock=NULL;
     doneNum=0;
+    clockmark=false;
     serverForFetch=new QTcpServer();
     serverForFetch->listen(QHostAddress::Any,DECODE_FOR_FETCH_PORT);
     connect(serverForFetch,SIGNAL(newConnection()),this,SLOT(dealFetchConnection()));
@@ -218,14 +219,12 @@ void Decode::dealExecuteData()
         e_dstE = json.value("e_dstE").toInt();
         e_valE = json.value("e_valE").toInt();
     }
-    mutexNum.lock();
     doneNum++;
-    if(doneNum==3)
+    if(doneNum==3&&clockmark)
     {
         doneNum=0;
-        wait.wakeAll();
+        circleBegin2();
     }
-    mutexNum.unlock();
 }
 
 void Decode::dealMemoryData()
@@ -248,15 +247,12 @@ void Decode::dealMemoryData()
     }
     else
         M_dstE = -1;
-
-    mutexNum.lock();
     doneNum++;
-    if(doneNum==3)
+    if(doneNum==3&&clockmark)
     {
         doneNum=0;
-        wait.wakeAll();
+        circleBegin2();
     }
-    mutexNum.unlock();
 }
 
 void Decode::dealWritebackData()
@@ -279,14 +275,12 @@ void Decode::dealWritebackData()
     }
     else
         W_dstE = -1;
-    mutexNum.lock();
     doneNum++;
-    if(doneNum==3)
+    if(doneNum==3&&clockmark)
     {
         doneNum=0;
-        wait.wakeAll();
+        circleBegin2();
     }
-    mutexNum.unlock();
 }
 
 //读取寄存器的值
@@ -464,26 +458,10 @@ void Decode::fwd_valB()
 
 void Decode::circleBegin()
 {
+    clockmark=true;
     qWarning()<<"decode Circle";
     QString str=QString(clientToClock->readAll());
-    if(str=="nextStep")
-    {
-        //clientToWriteback->waitForReadyRead();
-        //clientToMemory->waitForReadyRead();
-        //clientToExecute->waitForReadyRead();
-        mutexWait.lock();
-        wait.wait(&mutexNum);
-        mutexWait.unlock();
-        if(!isEnd)
-        {
-            decode();
-            sel_fwd_valA();
-            fwd_valB();
-        }
-        sendToExecute(dataToExecute());
-        sendToFetch(dataToFetch());
-        qDebug()<<"decodedone";
-    }else if(str=="restart")
+    if(str=="restart")
     {
         D_stat = -1;
         E_icode = -1;
@@ -491,14 +469,33 @@ void Decode::circleBegin()
         M_dstM = -1;
         W_dstE = -1;
         W_dstM = -1;
-
         isRisk = false;
         isEnd = false;
-
         QJsonObject json;
         emit sendFromDecode(json);
+        clientToClock->write("done");
+        clientToClock->waitForBytesWritten();
+        clockmark=false;
+        qDebug()<<"decode done";
+        return;
     }
+    if(doneNum!=3)
+        return;
+    circleBegin2();
+}
+void Decode::circleBegin2()
+{
+    if(!isEnd)
+    {
+        decode();
+        sel_fwd_valA();
+        fwd_valB();
+    }
+    sendToExecute(dataToExecute());
+    sendToFetch(dataToFetch());
+
     clientToClock->write("done");
     clientToClock->waitForBytesWritten();
-
+    clockmark=false;
+    qDebug()<<"decode done";
 }

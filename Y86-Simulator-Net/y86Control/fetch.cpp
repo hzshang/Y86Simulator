@@ -7,12 +7,6 @@ Fetch::Fetch()
 {
     init();
 }
-
-Fetch::~Fetch()
-{
-
-}
-
 void Fetch::run()
 {
     exec();
@@ -35,6 +29,7 @@ void Fetch::init()
     clientToClock=NULL;
     clientToExecute=NULL;
     doneNum=0;
+    clockmark=false;
 }
 
 //生成发送到Decode阶段的数据
@@ -101,14 +96,12 @@ void Fetch:: dealMemoryData()
     }
     else
         M_icode = -1;
-    mutexNum.lock();
     doneNum++;
-    if(doneNum==4)
+    if(doneNum==4&&clockmark)
     {
-        doneNum=0;
-        wait.wakeAll();
+       doneNum=0;
+       circleBegin2();
     }
-    mutexNum.unlock();
 }
 
 void Fetch::dealWritebackData()
@@ -123,14 +116,12 @@ void Fetch::dealWritebackData()
     }
     else
         W_icode = -1;
-    mutexNum.lock();
     doneNum++;
-    if(doneNum==4)
+    if(doneNum==4&&clockmark)
     {
-        doneNum=0;
-        wait.wakeAll();
+       doneNum=0;
+       circleBegin2();
     }
-    mutexNum.unlock();
 }
 
 void Fetch::dealExecuteData()
@@ -147,14 +138,12 @@ void Fetch::dealExecuteData()
     }
     else
         E_icode = -1;
-    mutexNum.lock();
     doneNum++;
-    if(doneNum==4)
+    if(doneNum==4&&clockmark)
     {
-        doneNum=0;
-        wait.wakeAll();
+       doneNum=0;
+       circleBegin2();
     }
-    mutexNum.unlock();
 }
 
 void Fetch::dealDecodeData()
@@ -170,14 +159,12 @@ void Fetch::dealDecodeData()
         d_srcB = json.value("d_srcB").toInt();
     else
         d_srcB = -1;
-    mutexNum.lock();
     doneNum++;
-    if(doneNum==4)
+    if(doneNum==4&&clockmark)
     {
-        doneNum=0;
-        wait.wakeAll();
+       doneNum=0;
+       circleBegin2();
     }
-    mutexNum.unlock();
 }
 
 
@@ -510,27 +497,12 @@ QJsonObject Fetch::dataToMainWindow()
 
 void Fetch::circleBegin()
 {
+    clockmark=true;
     qWarning()<<"fetch Circle";
     //每个周期要做的操作
     QString str=QString(clientToClock->readAll());
-    if(str=="nextStep")
+    if(str=="restart")
     {
-        mutexWait.lock();
-        wait.wait(&mutexNum);
-        mutexWait.unlock();
-        select_PC();
-        if(!isEnd)
-        {
-            fetch();
-            getInstruction();
-            predict_PC();
-        }
-        emit sendFromFetch(dataToMainWindow());
-        sendToDecode(DataToDecode());
-        qDebug()<<"fetchdone";
-    }else if(str=="restart")
-    {
-        qDebug()<<100;
         PC = 0;
         predPC = 0;
         f_stat = -1;
@@ -543,10 +515,38 @@ void Fetch::circleBegin()
         isEnd = false;
         QJsonObject json;
         emit sendFromFetch(json);
+
+        emit sendFromFetch(dataToMainWindow());
+        sendToDecode(DataToDecode());
+
+        clientToClock->write("done");
+        clientToClock->waitForBytesWritten();
+        clockmark=false;
+        qWarning()<<"fetch done";
     }
+    if(doneNum!=4)
+        return;
+    doneNum=0;
+    circleBegin2();
+
+}
+void Fetch::circleBegin2()
+{
+    select_PC();
+    if(!isEnd)
+    {
+        fetch();
+        getInstruction();
+        predict_PC();
+    }
+    emit sendFromFetch(dataToMainWindow());
+    sendToDecode(DataToDecode());
+
     if(isEnd)
         clientToClock->write("over");
     else
         clientToClock->write("done");
     clientToClock->waitForBytesWritten();
+    clockmark=false;
+    qWarning()<<"fetch done";
 }

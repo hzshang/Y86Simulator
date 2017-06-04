@@ -427,7 +427,6 @@ void Execute::circleBegin()
         sendToMemory(dataToMemory());
         sendToDecode(dataToDecode());
         sendToFetch(dataToFetch());
-        qDebug()<<"executedone";
     }else if(str=="restart")
     {
         E_stat = -1;
@@ -440,6 +439,6 @@ void Execute::circleBegin()
     }
     clientToClock->write("done");
     clientToClock->waitForBytesWritten();
-
+    qDebug()<<"executedone";
 }
 

@@ -35,7 +35,6 @@ private slots:
     void readFromlisten();
     void dealData(QJsonObject,QHostAddress);
     void on_clockIsOK();
-    void initPipeline();//初始化流水线
     void f2d();
     void f2w();
     void f2m();
@@ -54,15 +53,13 @@ private:
 
     QUdpSocket *listen;
     QUdpSocket *broadcast;
-    QUdpSocket *broadPoolSocket;
+
     Clock *clock;
     QMutex mutex;
     QWaitCondition awake;
     int circleTime;//周期时间，单位ms
     volatile int runState;//运行状态  running 1,step 2,pause 0 ,4 restart 仅对master有效
-
     bool clockIsOk;//连接阶段，如果五个阶段都连上了clock，则设为true  仅对master有效
-    void newThreadBroad();
     void init();
     void beginPipeLine();
     void beignConnect(QJsonObject,QHostAddress);

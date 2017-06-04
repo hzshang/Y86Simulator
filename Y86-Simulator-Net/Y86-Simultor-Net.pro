@@ -35,7 +35,8 @@ SOURCES += main.cpp\
     y86.cpp \
     mainwindow.cpp \
     y86Control/clock.cpp\
-    globle.cpp
+    globle.cpp \
+    y86-2.cpp
 
 HEADERS  += maindialog.h \
     y86Control/fetch.h \

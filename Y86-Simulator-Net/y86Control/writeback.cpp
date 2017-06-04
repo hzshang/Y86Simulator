@@ -255,7 +255,6 @@ void Writeback::circleBegin()
         }
         sendToDecode(dataToDecode());
         sendToFetch(dataToFetch());
-        qDebug()<<"writedone";
     }else if(str=="restart")
     {
         W_stat = -1;
@@ -267,5 +266,5 @@ void Writeback::circleBegin()
     }
     clientToClock->write("done");
     clientToClock->waitForBytesWritten();
-
+    qDebug()<<"writedone";
 }

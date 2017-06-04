@@ -6,7 +6,6 @@ class Fetch:public QThread
     Q_OBJECT
 public:
     explicit Fetch();
-    ~Fetch();
 
     QTcpSocket *clientToDecode;
     QTcpSocket *clientToMemory;
@@ -53,9 +52,8 @@ private:
     QJsonObject DataToDecode();
     void sendToDecode(QJsonObject json);
     QJsonObject dataToMainWindow();
-
-    QWaitCondition wait;
-    QMutex mutexWait;
+    void circleBegin2();
+    bool clockmark;
     QMutex mutexNum;
     int doneNum;
 };

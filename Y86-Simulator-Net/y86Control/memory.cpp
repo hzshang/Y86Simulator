@@ -313,17 +313,15 @@ void Memory::circleBegin()
         sendToWriteback(dataToWriteback());
         sendToDecode(dataToDecode());
         sendToFetch(dataToFetch());
-        qDebug()<<"memorydone";
     }else if(str=="restart")
     {
         M_stat = -1;
         isEnd = false;
-
         QJsonObject json;
         emit sendFromMemory(json);
     }
     clientToClock->write("done");
     clientToClock->waitForBytesWritten();
-
+    qDebug()<<"memorydone";
 }
 
