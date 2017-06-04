@@ -78,6 +78,8 @@ QJsonObject Memory::dataToWriteback()
     if(m_stat != 0)
     {
         sendData.insert("W_stat",m_stat);
+        if(m_stat == 1)
+            sendData.insert("instruction",instruction);
         return sendData;
     }
     sendData.insert("W_stat",m_stat);
@@ -225,6 +227,10 @@ void  Memory::dealExecuteData()
     }
 
     M_stat = json.value("M_stat").toInt();
+    if(M_stat == 1)
+    {
+        instruction = json.value("instruction").toString();
+    }
     if(json.contains("M_icode"))
     {
         M_icode = json.value("M_icode").toInt();

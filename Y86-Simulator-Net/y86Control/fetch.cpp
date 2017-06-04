@@ -41,6 +41,8 @@ QJsonObject Fetch::DataToDecode()
     if(f_stat != 0)
     {
         sendData.insert("D_stat",f_stat);
+        if(f_stat == 1)
+           sendData.insert("instruction",instrString);
         return sendData;
     }
     sendData.insert("D_stat",f_stat);
@@ -372,7 +374,7 @@ void Fetch::select_PC()
     else
         PC = predPC;
 
-    if(PC >= instrCode.length())
+    if(PC >= instrCode.length() || f_icode == 0)
         isEnd = true;
 }
 
@@ -380,22 +382,42 @@ void Fetch::fetch()
 {
     //分支错误处理
     if(E_icode == 7 && !e_Cnd)
+    {
         f_icode = 1;
+        f_ifun = 0;
+        f_stat = 0;
+        f_valP = PC;
+        instrString = "nop";
+        return;
+    }
+    else if(isRet)
+    {
+        f_icode = 1;
+        f_ifun = 0;
+    }
     //正常取值
     else
+    {
         f_icode = instrCode[PC];
-
-    if(f_icode == globle::HTL)
-        return;
-    f_ifun = instrCode[PC+1];
+        f_ifun = instrCode[PC+1];
+    }
     switch (f_icode) {
     case 0:
         f_stat = 1;
+        f_valP = PC + 2;
+        instrString = getInstruction();
         break;
     case 1:
-        if(!isRet)//ret处理
-        f_valP = PC + 2;
-        else f_valP = PC;
+        if(isRet)//ret处理
+        {
+            f_valP = PC;
+            instrString = "nop";
+        }
+        else
+        {
+            f_valP = PC + 2;
+            instrString = getInstruction();
+        }
         f_stat = 0;
         break;
     case 2:
@@ -403,6 +425,7 @@ void Fetch::fetch()
         f_rB = instrCode[PC+3];
         f_valP = PC + 4;
         f_stat = 0;
+        instrString = getInstruction();
         break;
     case 3:
         f_rA = instrCode[PC+2];
@@ -410,6 +433,7 @@ void Fetch::fetch()
         f_valC = getValue(PC+4,PC+11);
         f_valP = PC + 12;
         f_stat = 0;
+        instrString = getInstruction();
         break;
     case 4:
         f_rA = instrCode[PC+2];
@@ -417,6 +441,7 @@ void Fetch::fetch()
         f_valC = getValue(PC+4,PC+11);
         f_valP = PC + 12;
         f_stat = 0;
+        instrString = getInstruction();
         break;
     case 5:
         f_rA = instrCode[PC+2];
@@ -424,48 +449,56 @@ void Fetch::fetch()
         f_valC = getValue(PC+4,PC+11);
         f_valP = PC + 12;
         f_stat = 0;
+        instrString = getInstruction();
         break;
     case 6:
         f_rA = instrCode[PC+2];
         f_rB = instrCode[PC+3];
         f_valP = PC + 4;
         f_stat = 0;
+        instrString = getInstruction();
         break;
     case 7:
         f_valC = getValue(PC+2,PC+9);
         f_valP = PC + 10;
         f_stat = 0;
+        instrString = getInstruction();
         break;
     case 8:
         f_valC = getValue(PC+2,PC+9);
         f_valP = PC + 10;
         f_stat = 0;
+        instrString = getInstruction();
         break;
     case 9:
         f_valP = PC +2;
         isRet = true;
         f_stat = 0;
+        instrString = getInstruction();
         break;
     case 10:
         f_rA = instrCode[PC+2];
         f_rB = instrCode[PC+3];
         f_valP = PC + 4;
         f_stat = 0;
+        instrString = getInstruction();
         break;
     case 11:
         f_rA = instrCode[PC+2];
         f_rB = instrCode[PC+3];
         f_valP = PC + 4;
         f_stat = 0;
+        instrString = getInstruction();
         break;
     default:
         f_stat = 3;//无效的指令
         break;
     }
-    instrString = getInstruction();
     if((E_icode == 5 || E_icode == 11) &&
             (E_dstM == d_srcA || E_dstM == d_srcB))//加载使用数据冒险，暂停效果
-        isRisk = true;
+    {
+        isRisk = true;        
+    }
 
 }
 
@@ -484,7 +517,11 @@ QJsonObject Fetch::dataToMainWindow()
     if(isEnd)
         return sendData;
     if(f_stat != 0)
+    {
         sendData.insert("stat",f_stat);
+        if(f_stat == 1)
+            sendData.insert("instruction",instrString);
+    }
     else
     {
         sendData.insert("stat",f_stat);
@@ -506,6 +543,7 @@ void Fetch::circleBegin()
         PC = 0;
         predPC = 0;
         f_stat = -1;
+        f_icode = -1;
         E_icode = -1;
         M_icode = -1;
         W_icode = -1;
@@ -515,9 +553,6 @@ void Fetch::circleBegin()
         isEnd = false;
         QJsonObject json;
         emit sendFromFetch(json);
-
-        emit sendFromFetch(dataToMainWindow());
-        sendToDecode(DataToDecode());
 
         clientToClock->write("done");
         clientToClock->waitForBytesWritten();
@@ -536,7 +571,7 @@ void Fetch::circleBegin2()
     if(!isEnd)
     {
         fetch();
-        getInstruction();
+        //getInstruction();
         predict_PC();
     }
     emit sendFromFetch(dataToMainWindow());

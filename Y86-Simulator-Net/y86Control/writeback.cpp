@@ -158,6 +158,10 @@ void Writeback::dealMemoryData()
         return;
     }
     W_stat = json.value("W_stat").toInt();
+    if(W_stat == 1)
+    {
+        instruction = json.value("instruction").toString();
+    }
     if(json.contains("W_icode"))
     {
         W_icode = json.value("W_icode").toInt();
@@ -259,6 +263,14 @@ void Writeback::circleBegin()
     {
         W_stat = -1;
         isEnd = false;
+        globle::eax = 0;
+        globle::ebx = 0;
+        globle::ecx = 0;
+        globle::edx = 0;
+        globle::esp = 0;
+        globle::ebp = 0;
+        globle::esi = 0;
+        globle::edi = 0;
 
         QJsonObject json;
         emit sendFromWriteback(json);

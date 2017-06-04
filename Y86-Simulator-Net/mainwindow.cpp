@@ -165,7 +165,10 @@ void MainWindow::receiveFromFetch(QJsonObject rev)
             }
         }
         else if(stat == 1)
+        {
             setLine(ui->F_stat,"HTL");
+            ui->F_instruction->setText(rev.value("instruction").toString());
+        }
         else
             setLine(ui->F_stat,"INS");
     }
@@ -180,21 +183,24 @@ void MainWindow::receiveFromFetch(QJsonObject rev)
 void MainWindow::receiveFromDecode(QJsonObject rev)
 {
     ui->D_stat->clear();
+    ui->D_icode->clear();
+    ui->D_ifun->clear();
+    ui->D_valP->clear();
+    ui->D_instruction->clear();
     if(rev.contains("D_stat"))
     {
         int stat = rev.value("D_stat").toInt();
         if(stat == 0)
             setLine(ui->D_stat,"AOK");
         else if(stat == 1)
+        {
             setLine(ui->D_stat,"HTL");
+            ui->D_instruction->setText(rev.value("instruction").toString());
+        }
         else
             setLine(ui->D_stat,"INS");
     }
 
-    ui->D_icode->clear();
-    ui->D_ifun->clear();
-    ui->D_valP->clear();
-    ui->D_instruction->clear();
     if(rev.contains("D_icode"))
     {
         QString str = QString::number(rev.value("D_icode").toInt(),10);
@@ -233,13 +239,17 @@ void MainWindow::receiveFromDecode(QJsonObject rev)
 void MainWindow::receiveFromExecute(QJsonObject rev)
 {
     ui->E_stat->clear();
+    ui->E_instruction->clear();
     if(rev.contains("E_stat"))
     {
         int stat = rev.value("E_stat").toInt();
         if(stat == 0)
             setLine(ui->E_stat,"AOK");
         else if(stat == 1)
+        {
             setLine(ui->E_stat,"HTL");
+            ui->E_instruction->setText(rev.value("instruction").toString());
+        }
         else
             setLine(ui->E_stat,"INS");
     }
@@ -252,7 +262,6 @@ void MainWindow::receiveFromExecute(QJsonObject rev)
 
     ui->E_icode->clear();
     ui->E_ifun->clear();
-    ui->E_instruction->clear();
     if(rev.contains("E_icode"))
     {
         QString str = QString::number(rev.value("E_icode").toInt(),10);
@@ -309,19 +318,22 @@ void MainWindow::receiveFromExecute(QJsonObject rev)
 void MainWindow::receiveFromMemory(QJsonObject rev)
 {
     ui->M_stat->clear();
+    ui->M_instruction->clear();
     if(rev.contains("M_stat"))
     {
         int stat = rev.value("M_stat").toInt();
         if(stat == 0)
             setLine(ui->M_stat,"AOK");
         else if(stat == 1)
+        {
             setLine(ui->M_stat,"HTL");
+            ui->M_instruction->setText(rev.value("instruction").toString());
+        }
         else
             setLine(ui->M_stat,"INS");
     }
 
     ui->M_icode->clear();
-    ui->M_instruction->clear();
     if(rev.contains("M_icode"))
     {
         QString str = QString::number(rev.value("M_icode").toInt(),10);
@@ -365,13 +377,17 @@ void MainWindow::receiveFromMemory(QJsonObject rev)
 void MainWindow::receiveFromWriteback(QJsonObject rev)
 {
     ui->W_stat->clear();
+    ui->W_instruction->clear();
     if(rev.contains("W_stat"))
     {
         int stat = rev.value("W_stat").toInt();
         if(stat == 0)
             setLine(ui->W_stat,"AOK");
         else if(stat == 1)
+        {
             setLine(ui->W_stat,"HTL");
+            ui->W_instruction->setText(rev.value("instruction").toString());
+        }
         else if(stat == 2)
             setLine(ui->W_stat,"ADS");
         else
@@ -379,7 +395,6 @@ void MainWindow::receiveFromWriteback(QJsonObject rev)
     }
 
     ui->W_icode->clear();
-    ui->W_instruction->clear();
     if(rev.contains("W_icode"))
     {
         QString str = QString::number(rev.value("W_icode").toInt(),10);

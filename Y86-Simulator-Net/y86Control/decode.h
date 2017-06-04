@@ -31,6 +31,7 @@ private:
     int D_stat=-1,D_icode,D_ifun,D_rA,D_rB,D_valC,D_valP;
     int d_stat,d_icode,d_ifun,d_valC,d_valA,d_valB,d_dstE,d_dstM,d_srcA,d_srcB;
     int icodeStorage;
+    QJsonObject jsonStorage;
     QString instruction;
     bool isRisk = false;
     bool isEnd = false;

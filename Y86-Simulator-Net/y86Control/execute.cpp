@@ -136,6 +136,8 @@ QJsonObject Execute::dataToMemory()
     if(e_stat != 0)
     {
         sendData.insert("M_stat",e_stat);
+        if(e_stat)
+            sendData.insert("instruction",instruction);
         return sendData;
     }
     sendData.insert("M_stat",e_stat);
@@ -212,6 +214,10 @@ void Execute::dealDecodeData()
         return;
     }
     E_stat = json.value("E_stat").toInt();
+    if(E_stat == 1)
+    {
+        instruction = json.value("instruction").toString();
+    }
     if(json.contains("E_icode"))
     {
         E_icode = json.value("E_icode").toInt();

@@ -77,21 +77,25 @@ void Y86::ready(bool FLevel, bool DLevel, bool ELevel, bool MLevel, bool WLevel)
 }
 void Y86::run()
 {
-    while(runState!=0)
+    while(1)
     {
-        qWarning()<<"y86"<<QThread::currentThreadId();
-        if(runState==4)
+        if(runState==0)
         {
-            clock->restartPipeline();
-            runState=0;
-            break;
+            msleep(50);
+        }else
+        {
+            if(runState==4)
+            {
+                clock->restartPipeline();
+                runState=0;
+            }
+            emit nextStep();
+            mutex.lock();
+            awake.wait(&mutex);
+            mutex.unlock();
+            msleep(circleTime);
+            if(runState==2)
+                runState=0;
         }
-        emit nextStep();
-        mutex.lock();
-        awake.wait(&mutex);
-        mutex.unlock();
-        msleep(circleTime);
-        if(runState==2)
-            runState=0;
     }
 }

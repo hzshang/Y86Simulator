@@ -52,6 +52,8 @@ QJsonObject Decode::dataToExecute()
     if(d_stat != 0)
     {
         sendData.insert("E_stat",d_stat);
+        if(d_stat == 1)
+           sendData.insert("instruction",instruction);
         return sendData;
     }
     sendData.insert("E_stat",d_stat);
@@ -132,7 +134,7 @@ QJsonObject Decode::dataToFetch()
         return sendData;
     if(d_stat != 0)
         return sendData;
-    switch (d_icode) {
+    switch (isRisk?icodeStorage:d_icode) {
     case 2:
         sendData.insert("d_srcA",d_srcA);
         return sendData;
@@ -177,6 +179,18 @@ void Decode::dealFetchData()
     //get: D_stat,D_icode,D_rA,D_rB,D_valC,D_valP;
     QByteArray bytes=socketForFetch->readAll();
     QJsonObject json=QJsonDocument::fromBinaryData(bytes).object();
+    if(isRisk)
+    {
+        QJsonObject temp;
+        temp = json;
+        json = jsonStorage;
+        jsonStorage = temp;
+        isRisk = false;
+    }
+    else
+    {
+        jsonStorage = json;
+    }
     emit sendFromDecode(json);
     if(!json.contains("D_stat"))
     {
@@ -184,6 +198,10 @@ void Decode::dealFetchData()
         return;
     }
     D_stat = json.value("D_stat").toInt();
+    if(D_stat == 1)
+    {
+        instruction = json.value("instruction").toString();
+    }
     if(json.contains("D_icode"))
     {
         D_icode = json.value("D_icode").toInt();
@@ -304,13 +322,25 @@ void Decode::decode()
 {
     //分支错误
     if(E_icode == 7 && !e_Cnd)
-        d_icode = 1;
-    //加载，使用数据冒险处理
-    else if(isRisk)
     {
-        d_icode = icodeStorage;
-        isRisk = false;
+        d_icode = 1;
+        d_ifun = 0;
+        instruction = "nop";
+        QJsonObject json;
+        json.insert("D_stat",d_stat);
+        json.insert("D_icode",d_icode);
+        json.insert("D_ifun",d_ifun);
+        json.insert("D_valP",D_valP);
+        json.insert("instruction",instruction);
+        emit sendFromDecode(json);
+        return;
     }
+    //加载，使用数据冒险处理
+   // else if(isRisk)
+    //{
+    //    d_icode = icodeStorage;
+    //    isRisk = false;
+    //}
     else
     {
         d_icode = D_icode;
@@ -375,9 +405,19 @@ void Decode::decode()
             (E_dstM == d_srcA || E_dstM == d_srcB))
     {
         icodeStorage = d_icode;
-        d_icode = 1;
-        isRisk = true;
 
+        d_icode = 1;
+        d_ifun = 0;
+        instruction = "nop";
+        QJsonObject json;
+        json.insert("D_stat",d_stat);
+        json.insert("D_icode",d_icode);
+        json.insert("D_ifun",d_ifun);
+        json.insert("D_valP",D_valP);
+        json.insert("instruction",instruction);
+        emit sendFromDecode(json);
+
+        isRisk = true;
     }
 }
 
@@ -488,8 +528,11 @@ void Decode::circleBegin2()
     if(!isEnd)
     {
         decode();
-        sel_fwd_valA();
-        fwd_valB();
+        if(!isRisk)
+        {
+            sel_fwd_valA();
+            fwd_valB();
+        }
     }
     sendToExecute(dataToExecute());
     sendToFetch(dataToFetch());
