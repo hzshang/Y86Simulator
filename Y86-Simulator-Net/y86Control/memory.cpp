@@ -254,8 +254,6 @@ void Memory::memory()
     if(m_stat != 0)
         return;
     m_icode = M_icode;
-    //m_dstE = M_dstE;
-    //m_dstM = M_dstM;
     switch (m_icode) {
     case 1:
         break;
@@ -266,9 +264,11 @@ void Memory::memory()
         m_valE = M_valE;
     case 4:
         mem[M_valE] = M_valA;
+        qDebug()<<M_valE;
         break;
     case 5:
         m_dstM = M_dstM;
+        qDebug()<<M_valE;
         if(mem.contains(M_valE))
             m_valM = mem[M_valE];
         else
@@ -323,6 +323,7 @@ void Memory::circleBegin()
     {
         M_stat = -1;
         isEnd = false;
+        mem.clear();
         QJsonObject json;
         emit sendFromMemory(json);
     }

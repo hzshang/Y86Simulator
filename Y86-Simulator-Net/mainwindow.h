@@ -22,7 +22,7 @@ signals:
     void PipelineStop();
     void PipelineStep();
     void PipelineRestart();
-
+    void restartSignal();
 private slots:
     void beginpipelineSlot(Y86 *);
     void on_openFile_clicked();
@@ -45,6 +45,7 @@ private:
     void openFile();
     void readFile();
     void setLine(QLineEdit *l,QString str);
+    void clearLine(QLineEdit *l);
     void writeReg(QString dst,QString val);
     Y86 *wy86;
 };

@@ -29,7 +29,7 @@ private:
     int E_srcA,E_srcB;
     int aluA,aluB;
     int ZF = 0,SF = 0,OF = 0;
-    int e_stat,e_icode,e_Cnd,e_valE,e_valA,e_dstE,e_dstM;
+    int e_stat,e_icode,e_Cnd = -1,e_valE,e_valA,e_dstE,e_dstM;
     QString instruction;
     bool isEnd  = false;
 

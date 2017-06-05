@@ -7,8 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>670</width>
-    <height>720</height>
+    <height>700</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>y86-Simulator-Net</string>
@@ -135,15 +141,16 @@
    <widget class="QLabel" name="label_54">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>430</x>
       <y>580</y>
       <width>81</width>
-      <height>16</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Times New Roman</family>
+      <pointsize>12</pointsize>
      </font>
     </property>
     <property name="text">
@@ -170,6 +177,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
@@ -185,6 +193,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
@@ -212,6 +221,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
@@ -239,6 +249,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
@@ -700,6 +711,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
@@ -715,6 +727,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -742,6 +755,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -769,6 +783,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -813,6 +828,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
@@ -828,6 +844,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -855,6 +872,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -882,6 +900,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -909,6 +928,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -936,6 +956,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -963,6 +984,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -990,6 +1012,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1034,6 +1057,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1049,6 +1073,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1076,6 +1101,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1103,6 +1129,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1130,6 +1157,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1157,6 +1185,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1184,6 +1213,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1211,6 +1241,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1238,6 +1269,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1265,6 +1297,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1292,6 +1325,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1336,6 +1370,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1351,6 +1386,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1378,6 +1414,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1405,6 +1442,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1432,6 +1470,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1459,6 +1498,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1503,6 +1543,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1530,6 +1571,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1574,6 +1616,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1589,6 +1632,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1616,6 +1660,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1660,6 +1705,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1687,6 +1733,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1731,6 +1778,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1758,6 +1806,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>12</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1868,7 +1917,7 @@
      <rect>
       <x>10</x>
       <y>460</y>
-      <width>20</width>
+      <width>21</width>
       <height>147</height>
      </rect>
     </property>
@@ -1883,6 +1932,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>9</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1895,6 +1945,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>9</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1907,6 +1958,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>9</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1919,6 +1971,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>9</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1931,6 +1984,7 @@
        <property name="font">
         <font>
          <family>Times New Roman</family>
+         <pointsize>9</pointsize>
         </font>
        </property>
        <property name="text">
@@ -1975,7 +2029,7 @@
      <x>0</x>
      <y>0</y>
      <width>670</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>

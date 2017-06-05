@@ -88,6 +88,7 @@ void Y86::run()
             {
                 clock->restartPipeline();
                 runState=0;
+                continue;
             }
             emit nextStep();
             mutex.lock();

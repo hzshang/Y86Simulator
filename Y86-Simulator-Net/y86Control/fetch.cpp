@@ -224,6 +224,7 @@ int Fetch::hexTodec(QString str)
 //指令改为十进制形式，存储在数组中
 void Fetch::switchStrToInt()
 {
+    instrCode.clear();
     int i = 0;
     int length = instruction.length();
     for(i = 0; i < length; i++)
@@ -357,6 +358,90 @@ QString Fetch::getInstruction()
     return s;
 }
 
+QString Fetch::getNextInstruction()
+{
+    QString s = "";
+    switch(instrCode[predPC])
+    {
+         case 0:s += "halt";
+                break;
+         case 1:s += "nop";
+                break;
+         case 2:s += "rrmovl ";
+                s += getRegStr(instrCode[predPC+2]);
+                s += ",";
+                s += getRegStr(instrCode[predPC+3]);
+                break;
+         case 3:s += "irmovl $";
+                s += QString::number(getValue(predPC+4,predPC+11),10);
+                s += ",";
+                s += getRegStr(instrCode[predPC+3]);
+                break;
+         case 4:s += "rmmovl ";
+                s += getRegStr(instrCode[predPC+2]);
+                s += ",";
+                s += QString::number(getValue(predPC+4,predPC+11),10);
+                s += "("+getRegStr(instrCode[predPC+3])+")";
+                break;
+         case 5:s += "mrmovl ";
+                s += QString::number(getValue(predPC+4,predPC+11),10);
+                s += "("+getRegStr(instrCode[predPC+3])+")";
+                s += ",";
+                s += getRegStr(instrCode[predPC+2]);
+                break;
+         case 6:switch(instrCode[predPC+1])
+               {
+                  case 0:s += "addl ";
+                        break;
+                  case 1:s += "subl ";
+                        break;
+                  case 2:s += "andl ";
+                        break;
+                  case 3:s += "xorl ";
+                        break;
+                  default:break;
+               }
+                s += getRegStr(instrCode[predPC+2]);
+                s += ",";
+                s += getRegStr(instrCode[predPC+3]);
+                break;
+         case 7:switch(instrCode[predPC+1])
+               {
+                  case 0:s += "jmp ";
+                         break;
+                  case 1:s += "jle ";
+                         break;
+                  case 2:s += "jl ";
+                         break;
+                  case 3:s += "je ";
+                         break;
+                  case 4:s += "jne ";
+                         break;
+                  case 5:s += "jge ";
+                         break;
+                  case 6:s += "jg ";
+                         break;
+                  default:break;
+               }
+                s += QString::number(getValue(predPC+2,predPC+9),10);
+                break;
+         case 8:s += "call ";
+                s += QString::number(getValue(predPC+2,predPC+9),10);
+                break;
+         case 9:s += "ret ";
+                 break;
+         case 10:s += "pushl ";
+                s += getRegStr(instrCode[predPC+2]);
+                break;
+         case 11:
+                s += "popl ";
+                s += getRegStr(instrCode[predPC+2]);
+                break;
+         default:break;
+    }
+    return s;
+}
+
 void Fetch::select_PC()
 {
     if(M_icode == 7 && !M_Cnd)
@@ -366,11 +451,8 @@ void Fetch::select_PC()
         PC = W_valM;
         isRet = false;
     }
-    else if(isRisk || isEnd)
-    {
-        //PC = PC;
-        isRisk = false;
-    }
+    //else if(isEnd)
+    //    PC = PC;
     else
         PC = predPC;
 
@@ -387,7 +469,7 @@ void Fetch::fetch()
         f_ifun = 0;
         f_stat = 0;
         f_valP = PC;
-        instrString = "nop";
+        instrString = "bubble";
         return;
     }
     else if(isRet)
@@ -411,7 +493,7 @@ void Fetch::fetch()
         if(isRet)//ret处理
         {
             f_valP = PC;
-            instrString = "nop";
+            instrString = "bubble";
         }
         else
         {
@@ -497,7 +579,8 @@ void Fetch::fetch()
     if((E_icode == 5 || E_icode == 11) &&
             (E_dstM == d_srcA || E_dstM == d_srcB))//加载使用数据冒险，暂停效果
     {
-        isRisk = true;        
+        isRisk = true;
+        f_icode = -1;
     }
 
 }
@@ -506,6 +589,11 @@ void Fetch::predict_PC()
 {
     if(f_icode == 7 || f_icode == 8)
         predPC = f_valC;
+    else if(isRisk)
+    {
+        predPC = PC;
+        isRisk = false;
+    }
     else
         predPC = f_valP;
 }
@@ -514,20 +602,20 @@ void Fetch::predict_PC()
 QJsonObject Fetch::dataToMainWindow()
 {
     QJsonObject sendData;
-    if(isEnd)
+    if(isEnd || predPC >= instrCode.length())
         return sendData;
     if(f_stat != 0)
     {
         sendData.insert("stat",f_stat);
         if(f_stat == 1)
-            sendData.insert("instruction",instrString);
+            sendData.insert("instruction",getNextInstruction());
     }
     else
     {
         sendData.insert("stat",f_stat);
         sendData.insert("PC",PC);
         sendData.insert("predPC", predPC);
-        sendData.insert("instruction",instrString);
+        sendData.insert("instruction",getNextInstruction());
     }
     return sendData;
 }

@@ -326,7 +326,7 @@ void Execute::execute()
     //e_dstE = E_dstE;
     ALU_A();
     ALU_B();
-    switch (E_icode) {
+    switch (e_icode) {
     case 1:
         break;
     case 4:
@@ -377,7 +377,7 @@ void Execute::execute()
         break;
     case 7:
         e_valA = E_valA;
-        switch (E_icode) {
+        switch (E_ifun) {
         case 0:
             e_Cnd = 1;
             break;
@@ -430,12 +430,14 @@ void Execute::circleBegin()
             execute();
             emit sendCC(CCData());
         }
+        //sleep(1);
         sendToMemory(dataToMemory());
         sendToDecode(dataToDecode());
         sendToFetch(dataToFetch());
     }else if(str=="restart")
     {
         E_stat = -1;
+        e_Cnd = -1;
         ZF = 0;SF = 0;OF = 0;
         isEnd = false;
 

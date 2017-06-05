@@ -49,6 +49,7 @@ private slots:
     void on_PipelineStep();
     void on_PipelineRestart();
     void changeCircleTime(int);
+    void restartSLOT();
 private:
 
     QUdpSocket *listen;

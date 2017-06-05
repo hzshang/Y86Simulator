@@ -131,6 +131,11 @@ void Y86::changeCircleTime(int value)
 {
     circleTime=value;
 }
+
+void Y86::restartSLOT()
+{
+    runState=4;
+}
 void Y86::beginPipeLine()
 {
     stopBroadcast=true;

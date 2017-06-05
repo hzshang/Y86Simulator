@@ -325,7 +325,7 @@ void Decode::decode()
     {
         d_icode = 1;
         d_ifun = 0;
-        instruction = "nop";
+        instruction = "bubble";
         QJsonObject json;
         json.insert("D_stat",d_stat);
         json.insert("D_icode",d_icode);
@@ -408,7 +408,7 @@ void Decode::decode()
 
         d_icode = 1;
         d_ifun = 0;
-        instruction = "nop";
+        instruction = "bubble";
         QJsonObject json;
         json.insert("D_stat",d_stat);
         json.insert("D_icode",d_icode);

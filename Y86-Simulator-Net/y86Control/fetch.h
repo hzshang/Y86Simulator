@@ -44,6 +44,7 @@ private:
     void  select_PC();
     QString getRegStr(int k);
     QString getInstruction();
+    QString getNextInstruction();
     void fetch();
     void  predict_PC();
     int hexTodec(QString str);
