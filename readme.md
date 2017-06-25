@@ -1,54 +1,65 @@
-## Y86 Pipeline 
-## �ص�
-- ����׶��������  
-- ʹudp��tcpͨ��  
+Y86 Simulator Net
+===============
+ 
+开发环境：QT 5.0  
 
-## ע�� 
-ÿ��ʱ�����ڣ�ÿ����ˮ�ߴӻ�������ȡ��ִ��ָ�� �������д����һ����ˮ�ߵĻ�����
+
+## 特点
+- 五个阶段随意组合,在一个局域网里面多个客户端通过UDP协议广播,自动连接     
+- 每个阶段均在独立的线程里，线程之间的通信使用TCP协议传送数据  
+
+## 主体架构 
+- 程序分为clock、fetch、decode、execute、memory、writeback 六个线程  
+- 每个时钟周期开始时，clock向每个阶段发送TCP数据，代表时钟信号上升沿  
+- 收到clock信号后，每个阶段并发执行所在阶段的工作  
+- 各阶段执行完毕后向clock发送TCP数据，等待clock的下一个信号
+
 
 ## Fetch  
-�Ƚ���pcUpdate  
-��ָ��洢����ȡ������ֵ������д��D��  
+先进行pcUpdate  
+从指令存储器中取出各个值，将其写到D层  
 
 ## Decode  
-���8���Ĵ���
-��ȡ�Ĵ���������ð�գ�����д��E��  
+存放8个寄存器
+读取寄存器，处理冒险，将其写到E层  
+需要等待Execute,Memory,Writeback阶段发送数据
 
 ## Execute  
-ALU���㣬����д��M��  
+ALU计算，将其写到M层  
+
 ## Memory  
-���memory
-��д�ڴ棬д��WriteBack��  
+存放memory
+读写内存，写到WriteBack层  
 
 ## Writeback  
-д�ؼĴ���
+写回寄存器
 
-## ʱ���߳�
-��master��Ӧ�ó�����
-�ȴ�����׶η���������ź�
-Ȼ���ٵȴ��̶�ʱ�䣬����ʱ���źš�
+## 时钟线程
+和fetch线程在同一个客户端  
+向五个阶段发送时钟信号  
+等待五个阶段发送已完成信号
+然后再等待固定时间，再次发送时钟信号。
 
-## ���е�tcp����
+## Pipeline各阶段的TCP连接
 client|server|cid
 ------|------|---
-Fetch|WriteBack|1
-Fetch|Memory|2
-Fetch|Decode|3
-Decode|Execute|4
-Decode|Memory|5
-Decode|Writeback|6
-Execute|Memory|7
-Memory|Writeback|0
+Fetch|WriteBack|0
+Fetch|Memory|1
+Fetch|Decode|2
+Decode|Execute|3
+Decode|Memory|4
+Decode|Writeback|5
+Execute|Memory|6
+Memory|Writeback|7
 Fetch|Execute|8
-## ��ʱ�ӵ�����  
-
-client|server
-------|------
-fetch|clock
-decode|clock
-execute|clock
-memory|clock
-writeback|clock
 
 
+## Pipeline和时钟的TCP连接  
+client|server|cid
+------|------|---
+fetch|clock|9
+decode|clock|10
+execute|clock|11
+memory|clock|12
+writeback|clock|13
 
